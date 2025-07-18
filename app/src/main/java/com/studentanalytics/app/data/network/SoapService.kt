@@ -43,6 +43,46 @@ class SoapService {
         }
     }
 
+    suspend fun generateGradesTrendChart(request: ChartRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createGradesTrendChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateGradesTrendChart")
+            parseChartResponse(response)
+        }
+    }
+
+    suspend fun generateSubjectComparisonChart(request: ChartRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createSubjectComparisonChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateSubjectComparisonChart")
+            parseChartResponse(response)
+        }
+    }
+
+    suspend fun generateGPAProgressChart(request: ChartRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createGPAProgressChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateGPAProgressChart")
+            parseChartResponse(response)
+        }
+    }
+
+    suspend fun generatePerformanceDistributionChart(request: ChartRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createPerformanceDistributionChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generatePerformanceDistributionChart")
+            parseChartResponse(response)
+        }
+    }
+
+    suspend fun generateClassAverageChart(request: ChartRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createClassAverageChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateClassAverageChart")
+            parseChartResponse(response)
+        }
+    }
+
     private fun sendSoapRequest(soapEnvelope: String, action: String): String {
         val url = URL(baseUrl)
         val connection = url.openConnection() as HttpURLConnection
@@ -145,6 +185,81 @@ class SoapService {
         """.trimIndent()
     }
 
+    private fun createGradesTrendChartSoapEnvelope(request: ChartRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateGradesTrendChart>
+                        <studentId>${request.studentId}</studentId>
+                        <width>${request.width}</width>
+                        <height>${request.height}</height>
+                    </generateGradesTrendChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createSubjectComparisonChartSoapEnvelope(request: ChartRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateSubjectComparisonChart>
+                        <studentId>${request.studentId}</studentId>
+                        <width>${request.width}</width>
+                        <height>${request.height}</height>
+                    </generateSubjectComparisonChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createGPAProgressChartSoapEnvelope(request: ChartRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateGPAProgressChart>
+                        <studentId>${request.studentId}</studentId>
+                        <width>${request.width}</width>
+                        <height>${request.height}</height>
+                    </generateGPAProgressChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createPerformanceDistributionChartSoapEnvelope(request: ChartRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generatePerformanceDistributionChart>
+                        <classId>${request.classId}</classId>
+                        <width>${request.width}</width>
+                        <height>${request.height}</height>
+                    </generatePerformanceDistributionChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createClassAverageChartSoapEnvelope(request: ChartRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateClassAverageChart>
+                        <classId>${request.classId}</classId>
+                        <width>${request.width}</width>
+                        <height>${request.height}</height>
+                    </generateClassAverageChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
     private fun parseGradeAnalysisResponse(response: String): GradeAnalysisResponse {
         // Parse XML response and extract JSON data
         val jsonStart = response.indexOf("{")
@@ -213,6 +328,26 @@ class SoapService {
             needBasedBonus = json.getDouble("needBasedBonus"),
             eligibleScholarships = json.getString("eligibleScholarships").split(",").filter { it.isNotEmpty() },
             recommendations = json.getString("recommendations")
+        )
+    }
+
+    private fun parseChartResponse(response: String): ChartResponse {
+        val jsonStart = response.indexOf("{")
+        val jsonEnd = response.lastIndexOf("}") + 1
+        val jsonString = response.substring(jsonStart, jsonEnd)
+        val json = JSONObject(jsonString)
+
+        return ChartResponse(
+            success = json.getBoolean("success"),
+            chartType = json.getString("chartType"),
+            imageData = json.getString("imageData"),
+            studentId = if (json.has("studentId")) json.getString("studentId") else null,
+            classId = if (json.has("classId")) json.getString("classId") else null,
+            dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,
+            totalStudents = if (json.has("totalStudents")) json.getInt("totalStudents") else null,
+            subjects = if (json.has("subjects")) json.getInt("subjects") else null,
+            terms = if (json.has("terms")) json.getInt("terms") else null,
+            error = if (json.has("error")) json.getString("error") else null
         )
     }
 }

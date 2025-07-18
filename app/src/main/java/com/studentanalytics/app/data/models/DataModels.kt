@@ -77,3 +77,25 @@ data class ScholarshipEligibilityResponse(
     val eligibleScholarships: List<String>,
     val recommendations: String
 )
+
+// Chart Request Models
+data class ChartRequest(
+    val studentId: String? = null,
+    val classId: String? = null,
+    val width: Int = 800,
+    val height: Int = 600
+)
+
+// Chart Response Model
+data class ChartResponse(
+    val success: Boolean,
+    val chartType: String,
+    val imageData: String, // Base64 encoded image
+    val studentId: String? = null,
+    val classId: String? = null,
+    val dataPoints: Int? = null,
+    val totalStudents: Int? = null,
+    val subjects: Int? = null,
+    val terms: Int? = null,
+    val error: String? = null
+)

@@ -104,3 +104,75 @@ class ScholarshipEligibilityViewModel : ViewModel() {
         }
     }
 }
+
+data class ChartUiState(
+    val isLoading: Boolean = false,
+    val result: ChartResponse? = null,
+    val error: String? = null
+)
+
+class ChartViewModel : ViewModel() {
+    private val soapService = SoapService()
+    private val _uiState = MutableStateFlow(ChartUiState())
+    val uiState: StateFlow<ChartUiState> = _uiState.asStateFlow()
+
+    fun generateGradesTrendChart(request: ChartRequest) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = soapService.generateGradesTrendChart(request)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = result)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    fun generateSubjectComparisonChart(request: ChartRequest) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = soapService.generateSubjectComparisonChart(request)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = result)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    fun generateGPAProgressChart(request: ChartRequest) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = soapService.generateGPAProgressChart(request)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = result)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    fun generatePerformanceDistributionChart(request: ChartRequest) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = soapService.generatePerformanceDistributionChart(request)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = result)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+
+    fun generateClassAverageChart(request: ChartRequest) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            try {
+                val result = soapService.generateClassAverageChart(request)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = result)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+            }
+        }
+    }
+}
