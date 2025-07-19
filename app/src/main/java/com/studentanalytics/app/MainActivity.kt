@@ -69,7 +69,7 @@ fun NavigationGraph(
             GradeAnalysisScreen(onBack = { navController.popBackStack() })
         }
         composable("subject_comparison") {
-            SubjectComparisonScreen(onBack = { navController.popBackStack() })
+            CourseComparisonScreen(onBack = { navController.popBackStack() })
         }
         composable("predictive_modeling") {
             PredictiveModelingScreen(onBack = { navController.popBackStack() })

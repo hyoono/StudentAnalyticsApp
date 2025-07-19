@@ -4,54 +4,53 @@ package com.studentanalytics.app.data.models
 data class GradeAnalysisRequest(
     val studentId: String,
     val currentGrades: List<Double>,
-    val subjectWeights: List<Double>,
-    val historicalGrades: List<List<Double>>
+    val courseUnits: List<Double>,
+    val historicalGrades: List<List<Double>>,
+    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
 )
 
-data class SubjectComparisonRequest(
+data class CourseComparisonRequest(
     val studentId: String,
-    val subjectNames: List<String>,
-    val subjectGrades: List<Double>,
+    val courseNames: List<String>,
+    val studentGrades: List<Double>,
     val classAverages: List<Double>,
-    val creditHours: List<Int>
+    val creditHours: List<Int>,
+    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
 )
 
 data class PredictiveModelingRequest(
     val studentId: String,
     val historicalGrades: List<Double>,
     val attendanceRate: Double,
-    val participationScore: Double,
-    val studyHoursPerWeek: Int,
-    val extracurricularHours: Int
+    val courseHours: Int, // lecture + laboratory hours
+    val creditUnits: Int,
+    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
 )
 
 data class ScholarshipEligibilityRequest(
     val studentId: String,
-    val gpa: Double,
+    val twa: Double, // Term Weighted Average (1.00-5.00, where 1.00 is highest)
     val extracurriculars: List<String>,
-    val incomeLevel: String,
-    val honors: List<String>,
-    val communityServiceHours: Int,
-    val leadershipPositions: List<String>
+    val honors: List<String>
 )
 
 // Response Models
 data class GradeAnalysisResponse(
     val weightedAverage: Double,
-    val currentGpa: Double,
+    val currentTwa: Double,
     val gradeDistribution: String,
     val performanceTrend: String,
     val suggestions: String
 )
 
-data class SubjectComparisonResponse(
-    val bestSubject: String,
+data class CourseComparisonResponse(
+    val bestCourse: String,
     val bestGrade: Double,
-    val weakestSubject: String,
+    val weakestCourse: String,
     val weakestGrade: Double,
-    val overallGpa: Double,
-    val subjectsAboveAverage: List<String>,
-    val subjectsBelowAverage: List<String>,
+    val overallTwa: Double,
+    val coursesAboveAverage: List<String>,
+    val coursesBelowAverage: List<String>,
     val performanceVariance: Double,
     val recommendations: String
 )
@@ -67,13 +66,10 @@ data class PredictiveModelingResponse(
 )
 
 data class ScholarshipEligibilityResponse(
-    val eligibilityStatus: String,
+    val eligibilityStatus: String, // "eligible", "conditional", "not eligible"
     val overallScore: Double,
-    val gpaScore: Double,
+    val twaScore: Double,
     val extracurricularScore: Double,
-    val serviceScore: Double,
-    val leadershipScore: Double,
-    val needBasedBonus: Double,
     val eligibleScholarships: List<String>,
     val recommendations: String
 )
@@ -95,7 +91,7 @@ data class ChartResponse(
     val classId: String? = null,
     val dataPoints: Int? = null,
     val totalStudents: Int? = null,
-    val subjects: Int? = null,
+    val courses: Int? = null,
     val terms: Int? = null,
     val error: String? = null
 )
