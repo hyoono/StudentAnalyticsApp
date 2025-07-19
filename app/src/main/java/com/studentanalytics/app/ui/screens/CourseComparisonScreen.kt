@@ -3,6 +3,7 @@ package com.studentanalytics.app.ui.screens
 import java.util.Locale
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -11,23 +12,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.studentanalytics.app.data.models.SubjectComparisonRequest
-import com.studentanalytics.app.ui.viewmodels.SubjectComparisonViewModel
+import com.studentanalytics.app.data.models.CourseComparisonRequest
+import com.studentanalytics.app.ui.viewmodels.CourseComparisonViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectComparisonScreen(
+fun CourseComparisonScreen(
     onBack: () -> Unit,
-    viewModel: SubjectComparisonViewModel = viewModel()
+    viewModel: CourseComparisonViewModel = viewModel()
 ) {
     var studentId by remember { mutableStateOf("") }
-    var subjectNames by remember { mutableStateOf("") }
-    var subjectGrades by remember { mutableStateOf("") }
+    var courseNames by remember { mutableStateOf("") }
+    var studentGrades by remember { mutableStateOf("") }
     var classAverages by remember { mutableStateOf("") }
     var creditHours by remember { mutableStateOf("") }
+    var gradeFormat by remember { mutableStateOf("raw") }
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -45,7 +48,7 @@ fun SubjectComparisonScreen(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
             Text(
-                text = "Subject Performance Comparison",
+                text = "Course Performance Comparison",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -63,20 +66,76 @@ fun SubjectComparisonScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = subjectNames,
-            onValueChange = { subjectNames = it },
-            label = { Text("Subject Names (comma-separated)") },
+            value = courseNames,
+            onValueChange = { courseNames = it },
+            label = { Text("Course Names (comma-separated)") },
             placeholder = { Text("Mathematics,Physics,Chemistry,Biology") },
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Grade Format Selection
+        Text(
+            text = "Grade Format",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .selectable(
+                        selected = (gradeFormat == "raw"),
+                        onClick = { gradeFormat = "raw" },
+                        role = Role.RadioButton
+                    )
+                    .weight(1f)
+            ) {
+                RadioButton(
+                    selected = (gradeFormat == "raw"),
+                    onClick = { gradeFormat = "raw" }
+                )
+                Text(
+                    text = "Raw (0-100)",
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .selectable(
+                        selected = (gradeFormat == "transmuted"),
+                        onClick = { gradeFormat = "transmuted" },
+                        role = Role.RadioButton
+                    )
+                    .weight(1f)
+            ) {
+                RadioButton(
+                    selected = (gradeFormat == "transmuted"),
+                    onClick = { gradeFormat = "transmuted" }
+                )
+                Text(
+                    text = "Transmuted (1.00-5.00)",
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
-            value = subjectGrades,
-            onValueChange = { subjectGrades = it },
-            label = { Text("Subject Grades (comma-separated)") },
-            placeholder = { Text("85,92,78,88") },
+            value = studentGrades,
+            onValueChange = { studentGrades = it },
+            label = { Text("Student Grades (comma-separated)") },
+            placeholder = { 
+                if (gradeFormat == "raw") Text("85,92,78,88") 
+                else Text("1.25,1.00,1.75,1.50") 
+            },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
@@ -107,14 +166,15 @@ fun SubjectComparisonScreen(
 
         Button(
             onClick = {
-                val request = SubjectComparisonRequest(
+                val request = CourseComparisonRequest(
                     studentId = studentId,
-                    subjectNames = subjectNames.split(",").map { it.trim() },
-                    subjectGrades = subjectGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                    courseNames = courseNames.split(",").map { it.trim() },
+                    studentGrades = studentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
                     classAverages = classAverages.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                    creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() }
+                    creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() },
+                    gradeFormat = gradeFormat
                 )
-                viewModel.compareSubjects(request)
+                viewModel.compareCourses(request)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading
@@ -154,11 +214,11 @@ fun SubjectComparisonScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Text("Best Performance: ${result.bestSubject} (${String.format(Locale.US,"%.2f", result.bestGrade)})")
-                    Text("Weakest Performance: ${result.weakestSubject} (${String.format(Locale.US,"%.2f", result.weakestGrade)})")
-                    Text("Overall GPA: ${String.format(Locale.US,"%.2f", result.overallGpa)}")
-                    Text("Above Class Average: ${result.subjectsAboveAverage.joinToString(", ")}")
-                    Text("Below Class Average: ${result.subjectsBelowAverage.joinToString(", ")}")
+                    Text("Best Performance: ${result.bestCourse} (${String.format(Locale.US,"%.2f", result.bestGrade)})")
+                    Text("Weakest Performance: ${result.weakestCourse} (${String.format(Locale.US,"%.2f", result.weakestGrade)})")
+                    Text("Overall TWA: ${String.format(Locale.US,"%.2f", result.overallTwa)}")
+                    Text("Above Class Average: ${result.coursesAboveAverage.joinToString(", ")}")
+                    Text("Below Class Average: ${result.coursesBelowAverage.joinToString(", ")}")
                     Text("Performance Variance: ${String.format(Locale.US,"%.2f", result.performanceVariance)}")
                     Text("Recommendations: ${result.recommendations}")
                 }

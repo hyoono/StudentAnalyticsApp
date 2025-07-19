@@ -19,11 +19,11 @@ class SoapService {
         }
     }
 
-    suspend fun compareSubjects(request: SubjectComparisonRequest): SubjectComparisonResponse {
+    suspend fun compareCourses(request: CourseComparisonRequest): CourseComparisonResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createSubjectComparisonSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "compareSubjects")
-            parseSubjectComparisonResponse(response)
+            val soapEnvelope = createCourseComparisonSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "compareCourses")
+            parseCourseComparisonResponse(response)
         }
     }
 
@@ -51,18 +51,18 @@ class SoapService {
         }
     }
 
-    suspend fun generateSubjectComparisonChart(request: ChartRequest): ChartResponse {
+    suspend fun generateCourseComparisonChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createSubjectComparisonChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generateSubjectComparisonChart")
+            val soapEnvelope = createCourseComparisonChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateCourseComparisonChart")
             parseChartResponse(response)
         }
     }
 
-    suspend fun generateGPAProgressChart(request: ChartRequest): ChartResponse {
+    suspend fun generateTWAProgressChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createGPAProgressChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generateGPAProgressChart")
+            val soapEnvelope = createTWAProgressChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateTWAProgressChart")
             parseChartResponse(response)
         }
     }
@@ -123,26 +123,28 @@ class SoapService {
                     <analyzeGrades>
                         <studentId>${request.studentId}</studentId>
                         <currentGrades>${request.currentGrades.joinToString(",")}</currentGrades>
-                        <subjectWeights>${request.subjectWeights.joinToString(",")}</subjectWeights>
+                        <courseUnits>${request.courseUnits.joinToString(",")}</courseUnits>
                         <historicalGrades>${request.historicalGrades.joinToString(";") { it.joinToString(",") }}</historicalGrades>
+                        <gradeFormat>${request.gradeFormat}</gradeFormat>
                     </analyzeGrades>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
     }
 
-    private fun createSubjectComparisonSoapEnvelope(request: SubjectComparisonRequest): String {
+    private fun createCourseComparisonSoapEnvelope(request: CourseComparisonRequest): String {
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <compareSubjects>
+                    <compareCourses>
                         <studentId>${request.studentId}</studentId>
-                        <subjectNames>${request.subjectNames.joinToString(",")}</subjectNames>
-                        <subjectGrades>${request.subjectGrades.joinToString(",")}</subjectGrades>
+                        <courseNames>${request.courseNames.joinToString(",")}</courseNames>
+                        <studentGrades>${request.studentGrades.joinToString(",")}</studentGrades>
                         <classAverages>${request.classAverages.joinToString(",")}</classAverages>
                         <creditHours>${request.creditHours.joinToString(",")}</creditHours>
-                    </compareSubjects>
+                        <gradeFormat>${request.gradeFormat}</gradeFormat>
+                    </compareCourses>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
@@ -157,9 +159,9 @@ class SoapService {
                         <studentId>${request.studentId}</studentId>
                         <historicalGrades>${request.historicalGrades.joinToString(",")}</historicalGrades>
                         <attendanceRate>${request.attendanceRate}</attendanceRate>
-                        <participationScore>${request.participationScore}</participationScore>
-                        <studyHoursPerWeek>${request.studyHoursPerWeek}</studyHoursPerWeek>
-                        <extracurricularHours>${request.extracurricularHours}</extracurricularHours>
+                        <courseHours>${request.courseHours}</courseHours>
+                        <creditUnits>${request.creditUnits}</creditUnits>
+                        <gradeFormat>${request.gradeFormat}</gradeFormat>
                     </generatePrediction>
                 </soap:Body>
             </soap:Envelope>
@@ -173,12 +175,9 @@ class SoapService {
                 <soap:Body>
                     <checkEligibility>
                         <studentId>${request.studentId}</studentId>
-                        <gpa>${request.gpa}</gpa>
+                        <twa>${request.twa}</twa>
                         <extracurriculars>${request.extracurriculars.joinToString(",")}</extracurriculars>
-                        <incomeLevel>${request.incomeLevel}</incomeLevel>
                         <honors>${request.honors.joinToString(",")}</honors>
-                        <communityServiceHours>${request.communityServiceHours}</communityServiceHours>
-                        <leadershipPositions>${request.leadershipPositions.joinToString(",")}</leadershipPositions>
                     </checkEligibility>
                 </soap:Body>
             </soap:Envelope>
@@ -200,31 +199,31 @@ class SoapService {
         """.trimIndent()
     }
 
-    private fun createSubjectComparisonChartSoapEnvelope(request: ChartRequest): String {
+    private fun createCourseComparisonChartSoapEnvelope(request: ChartRequest): String {
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <generateSubjectComparisonChart>
+                    <generateCourseComparisonChart>
                         <studentId>${request.studentId}</studentId>
                         <width>${request.width}</width>
                         <height>${request.height}</height>
-                    </generateSubjectComparisonChart>
+                    </generateCourseComparisonChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
     }
 
-    private fun createGPAProgressChartSoapEnvelope(request: ChartRequest): String {
+    private fun createTWAProgressChartSoapEnvelope(request: ChartRequest): String {
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <generateGPAProgressChart>
+                    <generateTWAProgressChart>
                         <studentId>${request.studentId}</studentId>
                         <width>${request.width}</width>
                         <height>${request.height}</height>
-                    </generateGPAProgressChart>
+                    </generateTWAProgressChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
@@ -269,27 +268,27 @@ class SoapService {
 
         return GradeAnalysisResponse(
             weightedAverage = json.getDouble("weightedAverage"),
-            currentGpa = json.getDouble("currentGpa"),
+            currentTwa = json.getDouble("currentTwa"),
             gradeDistribution = json.getString("gradeDistribution"),
             performanceTrend = json.getString("performanceTrend"),
             suggestions = json.getString("suggestions")
         )
     }
 
-    private fun parseSubjectComparisonResponse(response: String): SubjectComparisonResponse {
+    private fun parseCourseComparisonResponse(response: String): CourseComparisonResponse {
         val jsonStart = response.indexOf("{")
         val jsonEnd = response.lastIndexOf("}") + 1
         val jsonString = response.substring(jsonStart, jsonEnd)
         val json = JSONObject(jsonString)
 
-        return SubjectComparisonResponse(
-            bestSubject = json.getString("bestSubject"),
+        return CourseComparisonResponse(
+            bestCourse = json.getString("bestCourse"),
             bestGrade = json.getDouble("bestGrade"),
-            weakestSubject = json.getString("weakestSubject"),
+            weakestCourse = json.getString("weakestCourse"),
             weakestGrade = json.getDouble("weakestGrade"),
-            overallGpa = json.getDouble("overallGpa"),
-            subjectsAboveAverage = json.getString("subjectsAboveAverage").split(",").filter { it.isNotEmpty() },
-            subjectsBelowAverage = json.getString("subjectsBelowAverage").split(",").filter { it.isNotEmpty() },
+            overallTwa = json.getDouble("overallTwa"),
+            coursesAboveAverage = json.getString("coursesAboveAverage").split(",").filter { it.isNotEmpty() },
+            coursesBelowAverage = json.getString("coursesBelowAverage").split(",").filter { it.isNotEmpty() },
             performanceVariance = json.getDouble("performanceVariance"),
             recommendations = json.getString("recommendations")
         )
@@ -321,11 +320,8 @@ class SoapService {
         return ScholarshipEligibilityResponse(
             eligibilityStatus = json.getString("eligibilityStatus"),
             overallScore = json.getDouble("overallScore"),
-            gpaScore = json.getDouble("gpaScore"),
+            twaScore = json.getDouble("twaScore"),
             extracurricularScore = json.getDouble("extracurricularScore"),
-            serviceScore = json.getDouble("serviceScore"),
-            leadershipScore = json.getDouble("leadershipScore"),
-            needBasedBonus = json.getDouble("needBasedBonus"),
             eligibleScholarships = json.getString("eligibleScholarships").split(",").filter { it.isNotEmpty() },
             recommendations = json.getString("recommendations")
         )
@@ -345,7 +341,7 @@ class SoapService {
             classId = if (json.has("classId")) json.getString("classId") else null,
             dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,
             totalStudents = if (json.has("totalStudents")) json.getInt("totalStudents") else null,
-            subjects = if (json.has("subjects")) json.getInt("subjects") else null,
+            courses = if (json.has("courses")) json.getInt("courses") else null,
             terms = if (json.has("terms")) json.getInt("terms") else null,
             error = if (json.has("error")) json.getString("error") else null
         )

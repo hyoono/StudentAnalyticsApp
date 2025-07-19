@@ -18,7 +18,7 @@ import com.studentanalytics.app.ui.viewmodels.ChartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GPAProgressChartScreen(
+fun TWAProgressChartScreen(
     onBack: () -> Unit,
     viewModel: ChartViewModel = viewModel()
 ) {
@@ -32,7 +32,7 @@ fun GPAProgressChartScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         TopAppBar(
-            title = { Text("GPA Progress Chart") },
+            title = { Text("TWA Progress Chart") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -51,12 +51,12 @@ fun GPAProgressChartScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Generate GPA Progress Chart",
+                text = "Generate TWA Progress Chart",
                 style = MaterialTheme.typography.headlineSmall
             )
             
             Text(
-                text = "This line chart shows GPA changes and trends over academic terms.",
+                text = "This line chart shows TWA changes and trends over academic terms.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -114,7 +114,7 @@ fun GPAProgressChartScreen(
                             val validatedWidth = widthInt.coerceIn(400, 1200)
                             val validatedHeight = heightInt.coerceIn(300, 800)
                             
-                            viewModel.generateGPAProgressChart(
+                            viewModel.generateTWAProgressChart(
                                 ChartRequest(
                                     studentId = studentId,
                                     width = validatedWidth,
@@ -157,7 +157,7 @@ fun GPAProgressChartScreen(
                     val validatedWidth = widthInt.coerceIn(400, 1200)
                     val validatedHeight = heightInt.coerceIn(300, 800)
                     
-                    viewModel.generateGPAProgressChart(
+                    viewModel.generateTWAProgressChart(
                         ChartRequest(
                             studentId = studentId,
                             width = validatedWidth,

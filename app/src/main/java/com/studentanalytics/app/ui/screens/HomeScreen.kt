@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     onNavigateToGradeAnalysis: () -> Unit,
-    onNavigateToSubjectComparison: () -> Unit,
+    onNavigateToCourseComparison: () -> Unit,
     onNavigateToPredictiveModeling: () -> Unit,
     onNavigateToScholarshipEligibility: () -> Unit,
     onNavigateToCharts: () -> Unit
@@ -53,10 +53,10 @@ fun HomeScreen(
         )
 
         AnalyticsCard(
-            title = "Subject Performance Comparison",
-            description = "Compare student performance across different subjects",
+            title = "Course Performance Comparison",
+            description = "Compare student performance across different courses",
             icon = Icons.AutoMirrored.Filled.CompareArrows,
-            onClick = onNavigateToSubjectComparison
+            onClick = onNavigateToCourseComparison
         )
 
         AnalyticsCard(

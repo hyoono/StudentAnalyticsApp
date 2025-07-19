@@ -159,9 +159,9 @@ private fun ChartMetadata(chartResponse: ChartResponse) {
             )
         }
         
-        chartResponse.subjects?.let {
+        chartResponse.courses?.let {
             Text(
-                text = "Subjects: $it",
+                text = "Courses: $it",
                 style = MaterialTheme.typography.bodySmall
             )
         }

@@ -33,22 +33,22 @@ class GradeAnalysisViewModel : ViewModel() {
     }
 }
 
-data class SubjectComparisonUiState(
+data class CourseComparisonUiState(
     val isLoading: Boolean = false,
-    val result: SubjectComparisonResponse? = null,
+    val result: CourseComparisonResponse? = null,
     val error: String? = null
 )
 
-class SubjectComparisonViewModel : ViewModel() {
+class CourseComparisonViewModel : ViewModel() {
     private val soapService = SoapService()
-    private val _uiState = MutableStateFlow(SubjectComparisonUiState())
-    val uiState: StateFlow<SubjectComparisonUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(CourseComparisonUiState())
+    val uiState: StateFlow<CourseComparisonUiState> = _uiState.asStateFlow()
 
-    fun compareSubjects(request: SubjectComparisonRequest) {
+    fun compareCourses(request: CourseComparisonRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val result = soapService.compareSubjects(request)
+                val result = soapService.compareCourses(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
@@ -128,11 +128,11 @@ class ChartViewModel : ViewModel() {
         }
     }
 
-    fun generateSubjectComparisonChart(request: ChartRequest) {
+    fun generateCourseComparisonChart(request: ChartRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val result = soapService.generateSubjectComparisonChart(request)
+                val result = soapService.generateCourseComparisonChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
@@ -140,11 +140,11 @@ class ChartViewModel : ViewModel() {
         }
     }
 
-    fun generateGPAProgressChart(request: ChartRequest) {
+    fun generateTWAProgressChart(request: ChartRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val result = soapService.generateGPAProgressChart(request)
+                val result = soapService.generateTWAProgressChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)

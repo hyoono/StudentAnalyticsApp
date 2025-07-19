@@ -18,7 +18,7 @@ import com.studentanalytics.app.ui.viewmodels.ChartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectComparisonChartScreen(
+fun CourseComparisonChartScreen(
     onBack: () -> Unit,
     viewModel: ChartViewModel = viewModel()
 ) {
@@ -32,7 +32,7 @@ fun SubjectComparisonChartScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         TopAppBar(
-            title = { Text("Subject Comparison Chart") },
+            title = { Text("Course Comparison Chart") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -51,7 +51,7 @@ fun SubjectComparisonChartScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = "Generate Subject Comparison Chart",
+                text = "Generate Course Comparison Chart",
                 style = MaterialTheme.typography.headlineSmall
             )
             
@@ -114,7 +114,7 @@ fun SubjectComparisonChartScreen(
                             val validatedWidth = widthInt.coerceIn(400, 1200)
                             val validatedHeight = heightInt.coerceIn(300, 800)
                             
-                            viewModel.generateSubjectComparisonChart(
+                            viewModel.generateCourseComparisonChart(
                                 ChartRequest(
                                     studentId = studentId,
                                     width = validatedWidth,
@@ -157,7 +157,7 @@ fun SubjectComparisonChartScreen(
                     val validatedWidth = widthInt.coerceIn(400, 1200)
                     val validatedHeight = heightInt.coerceIn(300, 800)
                     
-                    viewModel.generateSubjectComparisonChart(
+                    viewModel.generateCourseComparisonChart(
                         ChartRequest(
                             studentId = studentId,
                             width = validatedWidth,
