@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ChartsScreen(
     onNavigateToGradesTrend: () -> Unit,
-    onNavigateToSubjectComparison: () -> Unit,
-    onNavigateToGPAProgress: () -> Unit,
+    onNavigateToCourseComparison: () -> Unit,
+    onNavigateToTWAProgress: () -> Unit,
     onNavigateToPerformanceDistribution: () -> Unit,
     onNavigateToClassAverage: () -> Unit,
     onBack: () -> Unit
@@ -69,17 +69,17 @@ fun ChartsScreen(
             )
 
             AnalyticsCard(
-                title = "Subject Comparison Chart",
-                description = "Bar chart comparing student performance across different subjects",
+                title = "Course Comparison Chart",
+                description = "Bar chart comparing student performance across different courses",
                 icon = Icons.Default.BarChart,
-                onClick = onNavigateToSubjectComparison
+                onClick = onNavigateToCourseComparison
             )
 
             AnalyticsCard(
-                title = "GPA Progress Chart",
-                description = "Line chart showing GPA changes and trends over academic terms",
+                title = "TWA Progress Chart",
+                description = "Line chart showing TWA changes and trends over academic terms",
                 icon = Icons.Default.ShowChart,
-                onClick = onNavigateToGPAProgress
+                onClick = onNavigateToTWAProgress
             )
 
             AnalyticsCard(

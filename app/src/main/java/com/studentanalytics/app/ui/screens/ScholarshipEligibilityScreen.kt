@@ -26,14 +26,9 @@ fun ScholarshipEligibilityScreen(
     viewModel: ScholarshipEligibilityViewModel = viewModel()
 ) {
     var studentId by remember { mutableStateOf("") }
-    var gpa by remember { mutableStateOf("") }
+    var twa by remember { mutableStateOf("") }
     var extracurriculars by remember { mutableStateOf("") }
-    var selectedIncomeLevel by remember { mutableStateOf("Middle") }
     var honors by remember { mutableStateOf("") }
-    var communityServiceHours by remember { mutableStateOf("") }
-    var leadershipPositions by remember { mutableStateOf("") }
-
-    val incomeLevels = listOf("Low", "Middle", "High")
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -68,45 +63,13 @@ fun ScholarshipEligibilityScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = gpa,
-            onValueChange = { gpa = it },
-            label = { Text("GPA (0.0 - 4.0)") },
-            placeholder = { Text("3.75") },
+            value = twa,
+            onValueChange = { twa = it },
+            label = { Text("TWA (1.00 - 5.00, where 1.00 is highest)") },
+            placeholder = { Text("1.25") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Income Level",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        incomeLevels.forEach { level ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = (level == selectedIncomeLevel),
-                        onClick = { selectedIncomeLevel = level },
-                        role = Role.RadioButton
-                    )
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(
-                    selected = (level == selectedIncomeLevel),
-                    onClick = null
-                )
-                Text(
-                    text = level,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -130,39 +93,15 @@ fun ScholarshipEligibilityScreen(
             minLines = 2
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = communityServiceHours,
-            onValueChange = { communityServiceHours = it },
-            label = { Text("Community Service Hours") },
-            placeholder = { Text("120") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = leadershipPositions,
-            onValueChange = { leadershipPositions = it },
-            label = { Text("Leadership Positions (comma-separated)") },
-            placeholder = { Text("Class President,Team Captain") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
                 val request = ScholarshipEligibilityRequest(
                     studentId = studentId,
-                    gpa = gpa.toDoubleOrNull() ?: 0.0,
+                    twa = twa.toDoubleOrNull() ?: 0.0,
                     extracurriculars = extracurriculars.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                    incomeLevel = selectedIncomeLevel,
-                    honors = honors.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                    communityServiceHours = communityServiceHours.toIntOrNull() ?: 0,
-                    leadershipPositions = leadershipPositions.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    honors = honors.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                 )
                 viewModel.checkEligibility(request)
             },
@@ -213,11 +152,8 @@ fun ScholarshipEligibilityScreen(
 
                     Text("Status: ${result.eligibilityStatus}")
                     Text("Overall Score: ${String.format(Locale.US,"%.2f", result.overallScore)}/100")
-                    Text("GPA Score: ${String.format(Locale.US,"%.2f", result.gpaScore)}/30")
-                    Text("Extracurricular Score: ${String.format(Locale.US,"%.2f", result.extracurricularScore)}/25")
-                    Text("Service Score: ${String.format(Locale.US,"%.2f", result.serviceScore)}/20")
-                    Text("Leadership Score: ${String.format(Locale.US,"%.2f", result.leadershipScore)}/15")
-                    Text("Need-based Bonus: ${String.format(Locale.US,"%.2f", result.needBasedBonus)}/10")
+                    Text("TWA Score: ${String.format(Locale.US,"%.2f", result.twaScore)}/50")
+                    Text("Extracurricular Score: ${String.format(Locale.US,"%.2f", result.extracurricularScore)}/50")
 
                     if (result.eligibleScholarships.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))

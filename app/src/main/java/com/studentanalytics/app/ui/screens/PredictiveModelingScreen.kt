@@ -3,6 +3,7 @@ package com.studentanalytics.app.ui.screens
 import java.util.Locale
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,9 +28,9 @@ fun PredictiveModelingScreen(
     var studentId by remember { mutableStateOf("") }
     var historicalGrades by remember { mutableStateOf("") }
     var attendanceRate by remember { mutableStateOf("") }
-    var participationScore by remember { mutableStateOf("") }
-    var studyHoursPerWeek by remember { mutableStateOf("") }
-    var extracurricularHours by remember { mutableStateOf("") }
+    var courseHours by remember { mutableStateOf("") }
+    var creditUnits by remember { mutableStateOf("") }
+    var gradeFormat by remember { mutableStateOf("raw") }
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -67,10 +69,66 @@ fun PredictiveModelingScreen(
             value = historicalGrades,
             onValueChange = { historicalGrades = it },
             label = { Text("Historical Grades (comma-separated)") },
-            placeholder = { Text("85,87,82,89,91") },
+            placeholder = { 
+                if (gradeFormat == "raw") Text("85,87,82,89,91") 
+                else Text("1.25,1.00,1.75,1.50,1.00") 
+            },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Grade Format Selection
+        Text(
+            text = "Grade Format",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .selectable(
+                        selected = (gradeFormat == "raw"),
+                        onClick = { gradeFormat = "raw" },
+                        role = Role.RadioButton
+                    )
+                    .weight(1f)
+            ) {
+                RadioButton(
+                    selected = (gradeFormat == "raw"),
+                    onClick = { gradeFormat = "raw" }
+                )
+                Text(
+                    text = "Raw (0-100)",
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .selectable(
+                        selected = (gradeFormat == "transmuted"),
+                        onClick = { gradeFormat = "transmuted" },
+                        role = Role.RadioButton
+                    )
+                    .weight(1f)
+            ) {
+                RadioButton(
+                    selected = (gradeFormat == "transmuted"),
+                    onClick = { gradeFormat = "transmuted" }
+                )
+                Text(
+                    text = "Transmuted (1.00-5.00)",
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -86,21 +144,10 @@ fun PredictiveModelingScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = participationScore,
-            onValueChange = { participationScore = it },
-            label = { Text("Participation Score (1-10)") },
-            placeholder = { Text("8.5") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = studyHoursPerWeek,
-            onValueChange = { studyHoursPerWeek = it },
-            label = { Text("Study Hours Per Week") },
-            placeholder = { Text("25") },
+            value = courseHours,
+            onValueChange = { courseHours = it },
+            label = { Text("Course Hours (lecture + laboratory hours)") },
+            placeholder = { Text("5") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
@@ -108,10 +155,10 @@ fun PredictiveModelingScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = extracurricularHours,
-            onValueChange = { extracurricularHours = it },
-            label = { Text("Extracurricular Hours Per Week") },
-            placeholder = { Text("5") },
+            value = creditUnits,
+            onValueChange = { creditUnits = it },
+            label = { Text("Credit Units") },
+            placeholder = { Text("3") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
@@ -124,9 +171,9 @@ fun PredictiveModelingScreen(
                     studentId = studentId,
                     historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
                     attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
-                    participationScore = participationScore.toDoubleOrNull() ?: 0.0,
-                    studyHoursPerWeek = studyHoursPerWeek.toIntOrNull() ?: 0,
-                    extracurricularHours = extracurricularHours.toIntOrNull() ?: 0
+                    courseHours = courseHours.toIntOrNull() ?: 0,
+                    creditUnits = creditUnits.toIntOrNull() ?: 0,
+                    gradeFormat = gradeFormat
                 )
                 viewModel.generatePrediction(request)
             },
