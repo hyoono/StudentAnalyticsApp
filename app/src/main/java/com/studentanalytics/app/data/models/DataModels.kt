@@ -22,7 +22,7 @@ data class PredictiveModelingRequest(
     val studentId: String,
     val historicalGrades: List<Double>,
     val attendanceRate: Double,
-    val courseHours: Int, // lecture + laboratory hours
+    val courseHours: Double, // lecture + laboratory hours
     val creditUnits: Int,
     val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
 )

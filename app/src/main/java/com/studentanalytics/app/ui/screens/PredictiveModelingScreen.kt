@@ -136,7 +136,7 @@ fun PredictiveModelingScreen(
             value = attendanceRate,
             onValueChange = { attendanceRate = it },
             label = { Text("Attendance Rate (%)") },
-            placeholder = { Text("95.5") },
+            placeholder = { Text("95.50") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
@@ -146,10 +146,10 @@ fun PredictiveModelingScreen(
         OutlinedTextField(
             value = courseHours,
             onValueChange = { courseHours = it },
-            label = { Text("Course Hours (lecture + laboratory hours)") },
-            placeholder = { Text("5") },
+            label = { Text("Course Hours/Week") },
+            placeholder = { Text("40.00") },
             modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -171,7 +171,7 @@ fun PredictiveModelingScreen(
                     studentId = studentId,
                     historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
                     attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
-                    courseHours = courseHours.toIntOrNull() ?: 0,
+                    courseHours = courseHours.toDoubleOrNull() ?: 0.0,
                     creditUnits = creditUnits.toIntOrNull() ?: 0,
                     gradeFormat = gradeFormat
                 )
