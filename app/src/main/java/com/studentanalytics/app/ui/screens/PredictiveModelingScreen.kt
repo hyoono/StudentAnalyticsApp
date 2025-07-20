@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.PredictiveModelingRequest
 import com.studentanalytics.app.ui.viewmodels.PredictiveModelingViewModel
+import com.studentanalytics.app.ui.components.ChartDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -237,6 +238,31 @@ fun PredictiveModelingScreen(
                     }
                 }
             }
+            
+            // Add TWA progress chart automatically
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            ChartDisplay(
+                chartResponse = uiState.chartResponse,
+                isLoading = uiState.isLoadingChart,
+                error = uiState.chartError,
+                onRetry = { 
+                    // Retry chart generation with the last successful parameters
+                    if (uiState.result != null && studentId.isNotBlank()) {
+                        viewModel.generatePrediction(
+                            PredictiveModelingRequest(
+                                studentId = studentId,
+                                historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
+                                courseHours = courseHours.toDoubleOrNull() ?: 0.0,
+                                creditUnits = creditUnits.toIntOrNull() ?: 0,
+                                gradeFormat = gradeFormat
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

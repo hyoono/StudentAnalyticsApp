@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.CourseComparisonRequest
 import com.studentanalytics.app.ui.viewmodels.CourseComparisonViewModel
+import com.studentanalytics.app.ui.components.ChartDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,6 +224,31 @@ fun CourseComparisonScreen(
                     Text("Recommendations: ${result.recommendations}")
                 }
             }
+            
+            // Add course comparison chart automatically
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            ChartDisplay(
+                chartResponse = uiState.chartResponse,
+                isLoading = uiState.isLoadingChart,
+                error = uiState.chartError,
+                onRetry = { 
+                    // Retry chart generation with the last successful parameters
+                    if (uiState.result != null && studentId.isNotBlank()) {
+                        viewModel.compareCourses(
+                            CourseComparisonRequest(
+                                studentId = studentId,
+                                courseNames = courseNames.split(",").map { it.trim() },
+                                studentGrades = studentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                classAverages = classAverages.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() },
+                                gradeFormat = gradeFormat
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
