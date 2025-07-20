@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.GradeAnalysisRequest
 import com.studentanalytics.app.ui.viewmodels.GradeAnalysisViewModel
+import com.studentanalytics.app.ui.components.ChartDisplay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -212,6 +213,32 @@ fun GradeAnalysisScreen(
                     Text("Improvement Suggestions: ${result.suggestions}")
                 }
             }
+            
+            // Add grades trend chart automatically
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            ChartDisplay(
+                chartResponse = uiState.chartResponse,
+                isLoading = uiState.isLoadingChart,
+                error = uiState.chartError,
+                onRetry = { 
+                    // Retry chart generation with the last successful student ID
+                    if (uiState.result != null && studentId.isNotBlank()) {
+                        viewModel.analyzeGrades(
+                            GradeAnalysisRequest(
+                                studentId = studentId,
+                                currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                historicalGrades = historicalGrades.split(";").map { term ->
+                                    term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
+                                },
+                                gradeFormat = gradeFormat
+                            )
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
