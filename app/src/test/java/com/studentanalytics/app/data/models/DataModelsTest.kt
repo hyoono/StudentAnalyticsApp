@@ -2,8 +2,6 @@ package com.studentanalytics.app.data.models
 
 import org.junit.Test
 import org.junit.Assert.*
-import org.json.JSONObject
-import com.studentanalytics.app.data.network.SoapService
 
 /**
  * Unit tests for data models to verify decimal support for courseHours
