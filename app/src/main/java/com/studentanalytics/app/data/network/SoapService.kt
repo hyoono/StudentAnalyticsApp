@@ -286,7 +286,7 @@ class SoapService {
             bestGrade = json.getDouble("bestGrade"),
             weakestCourse = json.getString("weakestCourse"),
             weakestGrade = json.getDouble("weakestGrade"),
-            overallTwa = json.getDouble("overallTwa"),
+            overallTwa = json.getDouble("twa"), // Map from backend "twa" field to model "overallTwa" field
             coursesAboveAverage = json.getString("coursesAboveAverage").split(",").filter { it.isNotEmpty() },
             coursesBelowAverage = json.getString("coursesBelowAverage").split(",").filter { it.isNotEmpty() },
             performanceVariance = json.getDouble("performanceVariance"),
