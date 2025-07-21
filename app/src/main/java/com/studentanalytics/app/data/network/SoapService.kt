@@ -268,7 +268,7 @@ class SoapService {
 
         return GradeAnalysisResponse(
             weightedAverage = json.getDouble("weightedAverage"),
-            currentTwa = json.getDouble("currentTwa"),
+            currentTwa = json.getDouble("twa"), // Map from backend "twa" field to model "currentTwa" field
             gradeDistribution = json.getString("gradeDistribution"),
             performanceTrend = json.getString("performanceTrend"),
             suggestions = json.getString("suggestions")

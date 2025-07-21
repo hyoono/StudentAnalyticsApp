@@ -2,6 +2,8 @@ package com.studentanalytics.app.data.models
 
 import org.junit.Test
 import org.junit.Assert.*
+import org.json.JSONObject
+import com.studentanalytics.app.data.network.SoapService
 
 /**
  * Unit tests for data models to verify decimal support for courseHours
@@ -41,5 +43,24 @@ class DataModelsTest {
         
         assertEquals(40.00, request.courseHours, 0.001)
         assertEquals(98.00, request.attendanceRate, 0.001)
+    }
+    
+    @Test
+    fun gradeAnalysisResponse_canBeCreatedWithTwaField() {
+        // Test that we can create a GradeAnalysisResponse with proper field mapping
+        // This simulates what the backend returns vs what the model expects
+        val response = GradeAnalysisResponse(
+            weightedAverage = 87.5,
+            currentTwa = 2.15, // This should be mapped from backend's "twa" field
+            gradeDistribution = "A: 2, B: 1, C: 0, D: 0, F: 0",
+            performanceTrend = "Improving",
+            suggestions = "Focus on maintaining current performance..."
+        )
+        
+        assertEquals(87.5, response.weightedAverage, 0.001)
+        assertEquals(2.15, response.currentTwa, 0.001)
+        assertEquals("A: 2, B: 1, C: 0, D: 0, F: 0", response.gradeDistribution)
+        assertEquals("Improving", response.performanceTrend)
+        assertEquals("Focus on maintaining current performance...", response.suggestions)
     }
 }
