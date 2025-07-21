@@ -19,6 +19,14 @@ class SoapService {
         }
     }
 
+    suspend fun analyzeGradesWithChart(request: GradeAnalysisRequest): ChartResponse {
+        return withContext(Dispatchers.IO) {
+            val soapEnvelope = createGradeAnalysisWithChartSoapEnvelope(request)
+            val response = sendSoapRequest(soapEnvelope, "generateGradeAnalysisWithChart")
+            parseIntegratedAnalysisChartResponse(response)
+        }
+    }
+
     suspend fun compareCourses(request: CourseComparisonRequest): CourseComparisonResponse {
         return withContext(Dispatchers.IO) {
             val soapEnvelope = createCourseComparisonSoapEnvelope(request)
@@ -127,6 +135,25 @@ class SoapService {
                         <historicalGrades>${request.historicalGrades.joinToString(";") { it.joinToString(",") }}</historicalGrades>
                         <gradeFormat>${request.gradeFormat}</gradeFormat>
                     </analyzeGrades>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createGradeAnalysisWithChartSoapEnvelope(request: GradeAnalysisRequest): String {
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateGradeAnalysisWithChart>
+                        <studentId>${request.studentId}</studentId>
+                        <currentGrades>${request.currentGrades.joinToString(",")}</currentGrades>
+                        <courseUnits>${request.courseUnits.joinToString(",")}</courseUnits>
+                        <historicalGrades>${request.historicalGrades.joinToString(";") { it.joinToString(",") }}</historicalGrades>
+                        <gradeFormat>${request.gradeFormat}</gradeFormat>
+                        <width>800</width>
+                        <height>400</height>
+                    </generateGradeAnalysisWithChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
@@ -336,7 +363,29 @@ class SoapService {
         return ChartResponse(
             success = json.getBoolean("success"),
             chartType = json.getString("chartType"),
-            imageData = json.getString("imageData"),
+            imageData = if (json.has("imageData")) json.getString("imageData") else "",
+            studentId = if (json.has("studentId")) json.getString("studentId") else null,
+            classId = if (json.has("classId")) json.getString("classId") else null,
+            dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,
+            totalStudents = if (json.has("totalStudents")) json.getInt("totalStudents") else null,
+            courses = if (json.has("courses")) json.getInt("courses") else null,
+            terms = if (json.has("terms")) json.getInt("terms") else null,
+            error = if (json.has("error")) json.getString("error") else null
+        )
+    }
+
+    private fun parseIntegratedAnalysisChartResponse(response: String): ChartResponse {
+        val jsonStart = response.indexOf("{")
+        val jsonEnd = response.lastIndexOf("}") + 1
+        val jsonString = response.substring(jsonStart, jsonEnd)
+        val json = JSONObject(jsonString)
+
+        // The integrated response includes both analysis data and chart data
+        // We'll extract the chart portion for the ChartResponse
+        return ChartResponse(
+            success = json.getBoolean("success"),
+            chartType = json.getString("chartType"),
+            imageData = if (json.has("imageData")) json.getString("imageData") else "",
             studentId = if (json.has("studentId")) json.getString("studentId") else null,
             classId = if (json.has("classId")) json.getString("classId") else null,
             dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,

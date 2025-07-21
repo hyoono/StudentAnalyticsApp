@@ -25,33 +25,22 @@ class GradeAnalysisViewModel : ViewModel() {
 
     fun analyzeGrades(request: GradeAnalysisRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null, isLoadingChart = true)
             try {
                 // Perform grade analysis
                 val result = soapService.analyzeGrades(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Automatically generate grades trend chart
-                generateGradesTrendChart(request.studentId)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
-            }
-        }
-    }
-    
-    private fun generateGradesTrendChart(studentId: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoadingChart = true, chartError = null)
-            try {
-                val chartRequest = ChartRequest(
-                    studentId = studentId,
-                    width = 800,
-                    height = 400
-                )
-                val chartResult = soapService.generateGradesTrendChart(chartRequest)
+                // Generate integrated analysis with chart
+                val chartResult = soapService.analyzeGradesWithChart(request)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartError = e.message)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, 
+                    isLoadingChart = false,
+                    error = e.message,
+                    chartError = e.message
+                )
             }
         }
     }
