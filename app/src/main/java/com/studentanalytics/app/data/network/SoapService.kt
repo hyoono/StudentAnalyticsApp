@@ -54,7 +54,7 @@ class SoapService {
     suspend fun generateCourseComparisonChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
             val soapEnvelope = createCourseComparisonChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generateCourseComparisonChart")
+            val response = sendSoapRequest(soapEnvelope, "generateSubjectComparisonChart")
             parseChartResponse(response)
         }
     }
@@ -62,7 +62,7 @@ class SoapService {
     suspend fun generateTWAProgressChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
             val soapEnvelope = createTWAProgressChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generateTWAProgressChart")
+            val response = sendSoapRequest(soapEnvelope, "generateGPAProgressChart")
             parseChartResponse(response)
         }
     }
@@ -204,11 +204,11 @@ class SoapService {
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <generateCourseComparisonChart>
+                    <generateSubjectComparisonChart>
                         <studentId>${request.studentId}</studentId>
                         <width>${request.width}</width>
                         <height>${request.height}</height>
-                    </generateCourseComparisonChart>
+                    </generateSubjectComparisonChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
@@ -219,11 +219,11 @@ class SoapService {
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
-                    <generateTWAProgressChart>
+                    <generateGPAProgressChart>
                         <studentId>${request.studentId}</studentId>
                         <width>${request.width}</width>
                         <height>${request.height}</height>
-                    </generateTWAProgressChart>
+                    </generateGPAProgressChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
