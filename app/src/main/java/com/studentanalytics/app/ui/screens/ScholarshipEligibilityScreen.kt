@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.ScholarshipEligibilityRequest
 import com.studentanalytics.app.ui.viewmodels.ScholarshipEligibilityViewModel
-import com.studentanalytics.app.ui.components.ChartDisplay
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,29 +167,6 @@ fun ScholarshipEligibilityScreen(
                     }
                 }
             }
-            
-            // Add class average chart automatically to show student position
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            ChartDisplay(
-                chartResponse = uiState.chartResponse,
-                isLoading = uiState.isLoadingChart,
-                error = uiState.chartError,
-                onRetry = { 
-                    // Retry chart generation with the last successful parameters
-                    if (uiState.result != null && studentId.isNotBlank()) {
-                        viewModel.checkEligibility(
-                            ScholarshipEligibilityRequest(
-                                studentId = studentId,
-                                twa = twa.toDoubleOrNull() ?: 0.0,
-                                creditUnits = creditUnits.toIntOrNull() ?: 0,
-                                completedUnits = completedUnits.toIntOrNull() ?: 0
-                            )
-                        )
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }

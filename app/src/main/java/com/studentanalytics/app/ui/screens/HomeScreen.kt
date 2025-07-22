@@ -19,8 +19,7 @@ fun HomeScreen(
     onNavigateToGradeAnalysis: () -> Unit,
     onNavigateToCourseComparison: () -> Unit,
     onNavigateToPredictiveModeling: () -> Unit,
-    onNavigateToScholarshipEligibility: () -> Unit,
-    onNavigateToCharts: () -> Unit
+    onNavigateToScholarshipEligibility: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -71,13 +70,6 @@ fun HomeScreen(
             description = "Check student eligibility for scholarships based on criteria",
             icon = Icons.Default.School,
             onClick = onNavigateToScholarshipEligibility
-        )
-
-        AnalyticsCard(
-            title = "Chart Analytics",
-            description = "Generate visual charts and analytics for comprehensive insights",
-            icon = Icons.Default.PieChart,
-            onClick = onNavigateToCharts
         )
     }
 }

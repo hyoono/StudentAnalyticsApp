@@ -152,10 +152,7 @@ class PredictiveModelingViewModel : ViewModel() {
 data class ScholarshipEligibilityUiState(
     val isLoading: Boolean = false,
     val result: ScholarshipEligibilityResponse? = null,
-    val error: String? = null,
-    val chartResponse: ChartResponse? = null,
-    val chartError: String? = null,
-    val isLoadingChart: Boolean = false
+    val error: String? = null
 )
 
 class ScholarshipEligibilityViewModel : ViewModel() {
@@ -165,34 +162,13 @@ class ScholarshipEligibilityViewModel : ViewModel() {
 
     fun checkEligibility(request: ScholarshipEligibilityRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
                 // Perform scholarship eligibility analysis
                 val result = soapService.checkEligibility(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
-                
-                // Automatically generate class average chart to show student position relative to peers
-                generateClassAverageChart(request.studentId)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
-            }
-        }
-    }
-    
-    private fun generateClassAverageChart(studentId: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoadingChart = true, chartError = null)
-            try {
-                val chartRequest = ChartRequest(
-                    studentId = studentId,
-                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
-                    width = 800.coerceIn(400, 1200),
-                    height = 400.coerceIn(300, 800)
-                )
-                val chartResult = soapService.generateClassAverageChart(chartRequest)
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartError = e.message)
             }
         }
     }

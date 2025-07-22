@@ -61,8 +61,7 @@ fun NavigationGraph(
                 onNavigateToGradeAnalysis = { navController.navigate("grade_analysis") },
                 onNavigateToCourseComparison = { navController.navigate("subject_comparison") },
                 onNavigateToPredictiveModeling = { navController.navigate("predictive_modeling") },
-                onNavigateToScholarshipEligibility = { navController.navigate("scholarship_eligibility") },
-                onNavigateToCharts = { navController.navigate("charts") }
+                onNavigateToScholarshipEligibility = { navController.navigate("scholarship_eligibility") }
             )
         }
         composable("grade_analysis") {
@@ -76,31 +75,6 @@ fun NavigationGraph(
         }
         composable("scholarship_eligibility") {
             ScholarshipEligibilityScreen(onBack = { navController.popBackStack() })
-        }
-        composable("charts") {
-            ChartsScreen(
-                onNavigateToGradesTrend = { navController.navigate("grades_trend_chart") },
-                onNavigateToCourseComparison = { navController.navigate("subject_comparison_chart") },
-                onNavigateToTWAProgress = { navController.navigate("gpa_progress_chart") },
-                onNavigateToPerformanceDistribution = { navController.navigate("performance_distribution_chart") },
-                onNavigateToClassAverage = { navController.navigate("class_average_chart") },
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("grades_trend_chart") {
-            GradesTrendChartScreen(onBack = { navController.popBackStack() })
-        }
-        composable("subject_comparison_chart") {
-            CourseComparisonChartScreen(onBack = { navController.popBackStack() })
-        }
-        composable("gpa_progress_chart") {
-            TWAProgressChartScreen(onBack = { navController.popBackStack() })
-        }
-        composable("performance_distribution_chart") {
-            PerformanceDistributionChartScreen(onBack = { navController.popBackStack() })
-        }
-        composable("class_average_chart") {
-            ClassAverageChartScreen(onBack = { navController.popBackStack() })
         }
     }
 }
