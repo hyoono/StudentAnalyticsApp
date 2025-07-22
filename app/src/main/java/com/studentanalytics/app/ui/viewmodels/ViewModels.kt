@@ -87,8 +87,9 @@ class CourseComparisonViewModel : ViewModel() {
                     classAverages = comparisonRequest.classAverages,
                     creditHours = comparisonRequest.creditHours,
                     gradeFormat = comparisonRequest.gradeFormat,
-                    width = 800,
-                    height = 400
+                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
+                    width = 800.coerceIn(400, 1200),
+                    height = 400.coerceIn(300, 800)
                 )
                 val chartResult = soapService.generateCourseComparisonChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
@@ -135,8 +136,9 @@ class PredictiveModelingViewModel : ViewModel() {
             try {
                 val chartRequest = ChartRequest(
                     studentId = studentId,
-                    width = 800,
-                    height = 400
+                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
+                    width = 800.coerceIn(400, 1200),
+                    height = 400.coerceIn(300, 800)
                 )
                 val chartResult = soapService.generateTWAProgressChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
@@ -183,8 +185,9 @@ class ScholarshipEligibilityViewModel : ViewModel() {
             try {
                 val chartRequest = ChartRequest(
                     studentId = studentId,
-                    width = 800,
-                    height = 400
+                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
+                    width = 800.coerceIn(400, 1200),
+                    height = 400.coerceIn(300, 800)
                 )
                 val chartResult = soapService.generateClassAverageChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)

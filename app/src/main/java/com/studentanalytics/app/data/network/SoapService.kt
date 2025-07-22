@@ -10,6 +10,16 @@ import java.net.URL
 
 class SoapService {
     private val baseUrl = "http://10.0.2.2/student_analytics/soap_server.php"
+    
+    /**
+     * Validates and corrects chart dimensions to ensure they fall within backend constraints
+     * Backend requires: Width 400-1200, Height 300-800
+     */
+    private fun validateChartDimensions(width: Int, height: Int): Pair<Int, Int> {
+        val validatedWidth = width.coerceIn(400, 1200)
+        val validatedHeight = height.coerceIn(300, 800)
+        return Pair(validatedWidth, validatedHeight)
+    }
 
     suspend fun analyzeGrades(request: GradeAnalysisRequest): GradeAnalysisResponse {
         return withContext(Dispatchers.IO) {
@@ -141,6 +151,9 @@ class SoapService {
     }
 
     private fun createGradeAnalysisWithChartSoapEnvelope(request: GradeAnalysisRequest): String {
+        // Ensure chart dimensions are valid for backend
+        val (validatedWidth, validatedHeight) = validateChartDimensions(800, 400)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -151,8 +164,8 @@ class SoapService {
                         <courseUnits>${request.courseUnits.joinToString(",")}</courseUnits>
                         <historicalGrades>${request.historicalGrades.joinToString(";") { it.joinToString(",") }}</historicalGrades>
                         <gradeFormat>${request.gradeFormat}</gradeFormat>
-                        <width>800</width>
-                        <height>400</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generateGradeAnalysisWithChart>
                 </soap:Body>
             </soap:Envelope>
@@ -212,14 +225,17 @@ class SoapService {
     }
 
     private fun createGradesTrendChartSoapEnvelope(request: ChartRequest): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <generateGradesTrendChart>
                         <studentId>${request.studentId}</studentId>
-                        <width>${request.width}</width>
-                        <height>${request.height}</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generateGradesTrendChart>
                 </soap:Body>
             </soap:Envelope>
@@ -227,6 +243,9 @@ class SoapService {
     }
 
     private fun createCourseComparisonChartSoapEnvelope(request: ChartRequest): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -238,8 +257,8 @@ class SoapService {
                         <classAverages>${request.classAverages.joinToString(",")}</classAverages>
                         <creditHours>${request.creditHours.joinToString(",")}</creditHours>
                         <gradeFormat>${request.gradeFormat ?: "raw"}</gradeFormat>
-                        <width>${request.width}</width>
-                        <height>${request.height}</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generateSubjectComparisonChart>
                 </soap:Body>
             </soap:Envelope>
@@ -247,14 +266,17 @@ class SoapService {
     }
 
     private fun createTWAProgressChartSoapEnvelope(request: ChartRequest): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <generateGPAProgressChart>
                         <studentId>${request.studentId}</studentId>
-                        <width>${request.width}</width>
-                        <height>${request.height}</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generateGPAProgressChart>
                 </soap:Body>
             </soap:Envelope>
@@ -262,14 +284,17 @@ class SoapService {
     }
 
     private fun createPerformanceDistributionChartSoapEnvelope(request: ChartRequest): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <generatePerformanceDistributionChart>
                         <classId>${request.classId}</classId>
-                        <width>${request.width}</width>
-                        <height>${request.height}</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generatePerformanceDistributionChart>
                 </soap:Body>
             </soap:Envelope>
@@ -277,14 +302,17 @@ class SoapService {
     }
 
     private fun createClassAverageChartSoapEnvelope(request: ChartRequest): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <generateClassAverageChart>
                         <classId>${request.classId}</classId>
-                        <width>${request.width}</width>
-                        <height>${request.height}</height>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
                     </generateClassAverageChart>
                 </soap:Body>
             </soap:Envelope>
