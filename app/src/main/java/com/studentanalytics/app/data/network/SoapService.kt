@@ -27,6 +27,46 @@ class SoapService {
         return Pair(validatedWidth, validatedHeight)
     }
 
+    /**
+     * Generate realistic TWA progression data for a student
+     * Backend expects format: "Fall 2022:1.75,Spring 2023:1.50,Fall 2023:1.25"
+     */
+    private fun generateProgressDataForStudent(studentId: String?): String {
+        val studentIdNum = studentId?.toIntOrNull() ?: 1
+        val baseTWA = 1.50 + (studentIdNum % 10) * 0.05 // Base TWA between 1.50-2.00
+        
+        val progressData = mapOf(
+            "Fall 2022" to minOf(5.00, baseTWA + 0.50),
+            "Spring 2023" to minOf(5.00, baseTWA + 0.25),
+            "Fall 2023" to maxOf(1.00, baseTWA),
+            "Spring 2024" to maxOf(1.00, baseTWA - 0.15),
+            "Current Term" to maxOf(1.00, baseTWA - 0.25)
+        )
+        
+        return progressData.entries.joinToString(",") { "${it.key}:${"%.2f".format(it.value)}" }
+    }
+
+    /**
+     * Generate realistic grade trend data for a student
+     * Backend expects format: "Assessment 1:85,Assessment 2:87,Midterm:90"
+     */
+    private fun generateGradeTrendDataForStudent(studentId: String?): String {
+        val studentIdNum = studentId?.toIntOrNull() ?: 1
+        val baseGrade = 75 + (studentIdNum % 15) // Base grade between 75-90
+        
+        val gradeData = mapOf(
+            "Assessment 1" to (baseGrade + (-5..5).random()).coerceIn(0, 100),
+            "Assessment 2" to (baseGrade + (-3..7).random()).coerceIn(0, 100),
+            "Midterm" to (baseGrade + (-2..8).random()).coerceIn(0, 100),
+            "Assessment 3" to (baseGrade + (0..10).random()).coerceIn(0, 100),
+            "Assessment 4" to (baseGrade + (2..12).random()).coerceIn(0, 100),
+            "Final Project" to (baseGrade + (-4..8).random()).coerceIn(0, 100),
+            "Final Exam" to (baseGrade + (-2..6).random()).coerceIn(0, 100)
+        )
+        
+        return gradeData.entries.joinToString(",") { "${it.key}:${it.value}" }
+    }
+
     suspend fun analyzeGrades(request: GradeAnalysisRequest): GradeAnalysisResponse {
         return withContext(Dispatchers.IO) {
             val soapEnvelope = createGradeAnalysisSoapEnvelope(request)
@@ -69,7 +109,10 @@ class SoapService {
 
     suspend fun generateGradesTrendChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createGradesTrendChartSoapEnvelope(request)
+            // For now, use a simulated grade trend data format that the backend expects
+            // This creates realistic grade progression data from student ID
+            val gradeData = generateGradeTrendDataForStudent(request.studentId)
+            val soapEnvelope = createGradesTrendChartWithDataSoapEnvelope(gradeData, request.width, request.height)
             val response = sendSoapRequest(soapEnvelope, "generateGradesTrendChart")
             parseChartResponse(response)
         }
@@ -85,7 +128,10 @@ class SoapService {
 
     suspend fun generateTWAProgressChart(request: ChartRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createTWAProgressChartSoapEnvelope(request)
+            // For now, use a simulated progress data format that the backend expects
+            // This creates realistic TWA progression data from student ID
+            val progressData = generateProgressDataForStudent(request.studentId)
+            val soapEnvelope = createTWAProgressChartWithDataSoapEnvelope(progressData, request.width, request.height)
             val response = sendSoapRequest(soapEnvelope, "generateGPAProgressChart")
             parseChartResponse(response)
         }
@@ -237,29 +283,6 @@ class SoapService {
         """.trimIndent()
     }
 
-    private fun createGradesTrendChartSoapEnvelope(request: ChartRequest): String {
-        // Validate chart dimensions to ensure they meet backend constraints
-        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
-        
-        // Additional safety check - ensure dimensions are definitely within expected range
-        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
-            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
-        }
-        
-        return """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                <soap:Body>
-                    <generateGradesTrendChart>
-                        <studentId>${request.studentId}</studentId>
-                        <width>$validatedWidth</width>
-                        <height>$validatedHeight</height>
-                    </generateGradesTrendChart>
-                </soap:Body>
-            </soap:Envelope>
-        """.trimIndent()
-    }
-
     private fun createCourseComparisonChartSoapEnvelope(request: ChartRequest): String {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
@@ -288,9 +311,9 @@ class SoapService {
         """.trimIndent()
     }
 
-    private fun createTWAProgressChartSoapEnvelope(request: ChartRequest): String {
+    private fun createTWAProgressChartWithDataSoapEnvelope(progressData: String, width: Int, height: Int): String {
         // Validate chart dimensions to ensure they meet backend constraints
-        val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        val (validatedWidth, validatedHeight) = validateChartDimensions(width, height)
         
         // Additional safety check - ensure dimensions are definitely within expected range
         if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
@@ -302,10 +325,35 @@ class SoapService {
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <generateGPAProgressChart>
-                        <studentId>${request.studentId}</studentId>
+                        <progressData>$progressData</progressData>
+                        <title>TWA Progress Chart</title>
                         <width>$validatedWidth</width>
                         <height>$validatedHeight</height>
                     </generateGPAProgressChart>
+                </soap:Body>
+            </soap:Envelope>
+        """.trimIndent()
+    }
+
+    private fun createGradesTrendChartWithDataSoapEnvelope(gradeData: String, width: Int, height: Int): String {
+        // Validate chart dimensions to ensure they meet backend constraints
+        val (validatedWidth, validatedHeight) = validateChartDimensions(width, height)
+        
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
+        
+        return """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <generateGradesTrendChart>
+                        <gradeData>$gradeData</gradeData>
+                        <title>Grade Trend Chart</title>
+                        <width>$validatedWidth</width>
+                        <height>$validatedHeight</height>
+                    </generateGradesTrendChart>
                 </soap:Body>
             </soap:Envelope>
         """.trimIndent()
