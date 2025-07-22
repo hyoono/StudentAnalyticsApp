@@ -122,25 +122,25 @@ class PredictiveModelingViewModel : ViewModel() {
                 val result = soapService.generatePrediction(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Automatically generate TWA progress chart
-                generateTWAProgressChart(request.studentId)
+                // Automatically generate TWA progress chart using the same user input data
+                generateTWAProgressChart(request)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
     
-    private fun generateTWAProgressChart(studentId: String) {
+    private fun generateTWAProgressChart(request: PredictiveModelingRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingChart = true, chartError = null)
             try {
-                val chartRequest = ChartRequest(
-                    studentId = studentId,
-                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
+                // Use the backend's integrated prediction with chart generation
+                // This ensures the chart uses the same user input data as the prediction analysis
+                val chartResult = soapService.generatePredictionWithChart(
+                    request = request,
                     width = 800.coerceIn(400, 1200),
                     height = 400.coerceIn(300, 800)
                 )
-                val chartResult = soapService.generateTWAProgressChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartError = e.message)

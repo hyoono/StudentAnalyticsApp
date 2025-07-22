@@ -247,18 +247,17 @@ fun PredictiveModelingScreen(
                 isLoading = uiState.isLoadingChart,
                 error = uiState.chartError,
                 onRetry = { 
-                    // Retry chart generation with the last successful parameters
+                    // Retry chart generation with the actual user input data
                     if (uiState.result != null && studentId.isNotBlank()) {
-                        viewModel.generatePrediction(
-                            PredictiveModelingRequest(
-                                studentId = studentId,
-                                historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
-                                courseHours = courseHours.toDoubleOrNull() ?: 0.0,
-                                creditUnits = creditUnits.toIntOrNull() ?: 0,
-                                gradeFormat = gradeFormat
-                            )
+                        val request = PredictiveModelingRequest(
+                            studentId = studentId,
+                            historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
+                            courseHours = courseHours.toDoubleOrNull() ?: 0.0,
+                            creditUnits = creditUnits.toIntOrNull() ?: 0,
+                            gradeFormat = gradeFormat
                         )
+                        viewModel.generatePrediction(request)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
