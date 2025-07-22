@@ -16,8 +16,14 @@ class SoapService {
      * Backend requires: Width 400-1200, Height 300-800
      */
     private fun validateChartDimensions(width: Int, height: Int): Pair<Int, Int> {
-        val validatedWidth = width.coerceIn(400, 1200)
-        val validatedHeight = height.coerceIn(300, 800)
+        // Ensure input values are positive and reasonable
+        val safeWidth = maxOf(width, 1)
+        val safeHeight = maxOf(height, 1)
+        
+        // Apply backend constraints strictly
+        val validatedWidth = safeWidth.coerceIn(400, 1200)
+        val validatedHeight = safeHeight.coerceIn(300, 800)
+        
         return Pair(validatedWidth, validatedHeight)
     }
 
@@ -151,8 +157,15 @@ class SoapService {
     }
 
     private fun createGradeAnalysisWithChartSoapEnvelope(request: GradeAnalysisRequest): String {
-        // Ensure chart dimensions are valid for backend
-        val (validatedWidth, validatedHeight) = validateChartDimensions(800, 400)
+        // Use safe default dimensions and validate them
+        val defaultWidth = 800
+        val defaultHeight = 400
+        val (validatedWidth, validatedHeight) = validateChartDimensions(defaultWidth, defaultHeight)
+        
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
         
         return """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -228,6 +241,11 @@ class SoapService {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
         
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -245,6 +263,11 @@ class SoapService {
     private fun createCourseComparisonChartSoapEnvelope(request: ChartRequest): String {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
         
         return """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -269,6 +292,11 @@ class SoapService {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
         
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -287,6 +315,11 @@ class SoapService {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
         
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
+        
         return """
             <?xml version="1.0" encoding="UTF-8"?>
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -304,6 +337,11 @@ class SoapService {
     private fun createClassAverageChartSoapEnvelope(request: ChartRequest): String {
         // Validate chart dimensions to ensure they meet backend constraints
         val (validatedWidth, validatedHeight) = validateChartDimensions(request.width, request.height)
+        
+        // Additional safety check - ensure dimensions are definitely within expected range
+        if (validatedWidth < 400 || validatedWidth > 1200 || validatedHeight < 300 || validatedHeight > 800) {
+            throw IllegalArgumentException("Chart dimensions validation failed: width=$validatedWidth, height=$validatedHeight")
+        }
         
         return """
             <?xml version="1.0" encoding="UTF-8"?>

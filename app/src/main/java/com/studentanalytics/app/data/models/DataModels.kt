@@ -78,8 +78,8 @@ data class ScholarshipEligibilityResponse(
 data class ChartRequest(
     val studentId: String? = null,
     val classId: String? = null,
-    val width: Int = 800,
-    val height: Int = 600,
+    val width: Int = 800, // Safe default within backend constraints (400-1200)
+    val height: Int = 600, // Safe default within backend constraints (300-800)
     // Course comparison specific fields
     val courseNames: List<String> = emptyList(),
     val studentGrades: List<Double> = emptyList(),
