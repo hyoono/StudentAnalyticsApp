@@ -68,20 +68,25 @@ class CourseComparisonViewModel : ViewModel() {
                 val result = soapService.compareCourses(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Automatically generate course comparison chart
-                generateCourseComparisonChart(request.studentId)
+                // Automatically generate course comparison chart with the same data used for analysis
+                generateCourseComparisonChart(request)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
             }
         }
     }
     
-    private fun generateCourseComparisonChart(studentId: String) {
+    private fun generateCourseComparisonChart(comparisonRequest: CourseComparisonRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingChart = true, chartError = null)
             try {
                 val chartRequest = ChartRequest(
-                    studentId = studentId,
+                    studentId = comparisonRequest.studentId,
+                    courseNames = comparisonRequest.courseNames,
+                    studentGrades = comparisonRequest.studentGrades,
+                    classAverages = comparisonRequest.classAverages,
+                    creditHours = comparisonRequest.creditHours,
+                    gradeFormat = comparisonRequest.gradeFormat,
                     width = 800,
                     height = 400
                 )

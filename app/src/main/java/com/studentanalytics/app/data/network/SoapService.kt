@@ -233,6 +233,11 @@ class SoapService {
                 <soap:Body>
                     <generateSubjectComparisonChart>
                         <studentId>${request.studentId}</studentId>
+                        <courseNames>${request.courseNames.joinToString(",")}</courseNames>
+                        <studentGrades>${request.studentGrades.joinToString(",")}</studentGrades>
+                        <classAverages>${request.classAverages.joinToString(",")}</classAverages>
+                        <creditHours>${request.creditHours.joinToString(",")}</creditHours>
+                        <gradeFormat>${request.gradeFormat ?: "raw"}</gradeFormat>
                         <width>${request.width}</width>
                         <height>${request.height}</height>
                     </generateSubjectComparisonChart>

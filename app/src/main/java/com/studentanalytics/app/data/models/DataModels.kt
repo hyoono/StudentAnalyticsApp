@@ -79,7 +79,13 @@ data class ChartRequest(
     val studentId: String? = null,
     val classId: String? = null,
     val width: Int = 800,
-    val height: Int = 600
+    val height: Int = 600,
+    // Course comparison specific fields
+    val courseNames: List<String> = emptyList(),
+    val studentGrades: List<Double> = emptyList(),
+    val classAverages: List<Double> = emptyList(),
+    val creditHours: List<Int> = emptyList(),
+    val gradeFormat: String? = null
 )
 
 // Chart Response Model
