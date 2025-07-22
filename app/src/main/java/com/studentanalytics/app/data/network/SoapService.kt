@@ -368,8 +368,32 @@ class SoapService {
             classId = if (json.has("classId")) json.getString("classId") else null,
             dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,
             totalStudents = if (json.has("totalStudents")) json.getInt("totalStudents") else null,
-            courses = if (json.has("courses")) json.getInt("courses") else null,
-            terms = if (json.has("terms")) json.getInt("terms") else null,
+            courses = if (json.has("courses")) {
+                // Handle both array and integer formats from backend
+                try {
+                    json.getInt("courses")
+                } catch (e: Exception) {
+                    // If it's an array, return the array length
+                    try {
+                        json.getJSONArray("courses").length()
+                    } catch (e2: Exception) {
+                        null
+                    }
+                }
+            } else null,
+            terms = if (json.has("terms")) {
+                // Handle both array and integer formats from backend
+                try {
+                    json.getInt("terms")
+                } catch (e: Exception) {
+                    // If it's an array, return the array length
+                    try {
+                        json.getJSONArray("terms").length()
+                    } catch (e2: Exception) {
+                        null
+                    }
+                }
+            } else null,
             error = if (json.has("error")) json.getString("error") else null
         )
     }
@@ -390,8 +414,32 @@ class SoapService {
             classId = if (json.has("classId")) json.getString("classId") else null,
             dataPoints = if (json.has("dataPoints")) json.getInt("dataPoints") else null,
             totalStudents = if (json.has("totalStudents")) json.getInt("totalStudents") else null,
-            courses = if (json.has("courses")) json.getInt("courses") else null,
-            terms = if (json.has("terms")) json.getInt("terms") else null,
+            courses = if (json.has("courses")) {
+                // Handle both array and integer formats from backend
+                try {
+                    json.getInt("courses")
+                } catch (e: Exception) {
+                    // If it's an array, return the array length
+                    try {
+                        json.getJSONArray("courses").length()
+                    } catch (e2: Exception) {
+                        null
+                    }
+                }
+            } else null,
+            terms = if (json.has("terms")) {
+                // Handle both array and integer formats from backend
+                try {
+                    json.getInt("terms")
+                } catch (e: Exception) {
+                    // If it's an array, return the array length
+                    try {
+                        json.getJSONArray("terms").length()
+                    } catch (e2: Exception) {
+                        null
+                    }
+                }
+            } else null,
             error = if (json.has("error")) json.getString("error") else null
         )
     }
