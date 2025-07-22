@@ -28,8 +28,8 @@ fun ScholarshipEligibilityScreen(
 ) {
     var studentId by remember { mutableStateOf("") }
     var twa by remember { mutableStateOf("") }
-    var extracurriculars by remember { mutableStateOf("") }
-    var honors by remember { mutableStateOf("") }
+    var creditUnits by remember { mutableStateOf("") }
+    var completedUnits by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -75,23 +75,23 @@ fun ScholarshipEligibilityScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = extracurriculars,
-            onValueChange = { extracurriculars = it },
-            label = { Text("Extracurricular Activities (comma-separated)") },
-            placeholder = { Text("Basketball,Debate Club,Student Council") },
+            value = creditUnits,
+            onValueChange = { creditUnits = it },
+            label = { Text("Current Credit Units") },
+            placeholder = { Text("18") },
             modifier = Modifier.fillMaxWidth(),
-            minLines = 2
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = honors,
-            onValueChange = { honors = it },
-            label = { Text("Honors and Awards (comma-separated)") },
-            placeholder = { Text("Dean's List,Academic Excellence Award") },
+            value = completedUnits,
+            onValueChange = { completedUnits = it },
+            label = { Text("Completed Units") },
+            placeholder = { Text("75") },
             modifier = Modifier.fillMaxWidth(),
-            minLines = 2
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -101,8 +101,8 @@ fun ScholarshipEligibilityScreen(
                 val request = ScholarshipEligibilityRequest(
                     studentId = studentId,
                     twa = twa.toDoubleOrNull() ?: 0.0,
-                    extracurriculars = extracurriculars.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                    honors = honors.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    creditUnits = creditUnits.toIntOrNull() ?: 0,
+                    completedUnits = completedUnits.toIntOrNull() ?: 0
                 )
                 viewModel.checkEligibility(request)
             },
@@ -153,8 +153,8 @@ fun ScholarshipEligibilityScreen(
 
                     Text("Status: ${result.eligibilityStatus}")
                     Text("Overall Score: ${String.format(Locale.US,"%.2f", result.overallScore)}/100")
-                    Text("TWA Score: ${String.format(Locale.US,"%.2f", result.twaScore)}/50")
-                    Text("Extracurricular Score: ${String.format(Locale.US,"%.2f", result.extracurricularScore)}/50")
+                    Text("TWA Score: ${String.format(Locale.US,"%.2f", result.twaScore)}/70")
+                    Text("Academic Load Score: ${String.format(Locale.US,"%.2f", result.extracurricularScore)}/20")
 
                     if (result.eligibleScholarships.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -182,8 +182,8 @@ fun ScholarshipEligibilityScreen(
                             ScholarshipEligibilityRequest(
                                 studentId = studentId,
                                 twa = twa.toDoubleOrNull() ?: 0.0,
-                                extracurriculars = extracurriculars.split(",").map { it.trim() }.filter { it.isNotEmpty() },
-                                honors = honors.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                                creditUnits = creditUnits.toIntOrNull() ?: 0,
+                                completedUnits = completedUnits.toIntOrNull() ?: 0
                             )
                         )
                     }

@@ -30,8 +30,8 @@ data class PredictiveModelingRequest(
 data class ScholarshipEligibilityRequest(
     val studentId: String,
     val twa: Double, // Term Weighted Average (1.00-5.00, where 1.00 is highest)
-    val extracurriculars: List<String>,
-    val honors: List<String>
+    val creditUnits: Int, // Current credit units enrolled
+    val completedUnits: Int // Total completed units towards degree
 )
 
 // Response Models
