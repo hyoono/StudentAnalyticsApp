@@ -1,25 +1,30 @@
 package com.studentanalytics.app.ui.screens
 
 import java.util.Locale
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingDown
+import androidx.compose.material.icons.automirrored.filled.TrendingFlat
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.GradeAnalysisRequest
 import com.studentanalytics.app.ui.viewmodels.GradeAnalysisViewModel
-import com.studentanalytics.app.ui.components.ChartDisplay
+import com.studentanalytics.app.ui.components.*
+import com.studentanalytics.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +32,7 @@ fun GradeAnalysisScreen(
     onBack: () -> Unit,
     viewModel: GradeAnalysisViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("") }
+    var studentId by remember { mutableStateOf("2022161330") }
     var currentGrades by remember { mutableStateOf("") }
     var courseUnits by remember { mutableStateOf("") }
     var historicalGrades by remember { mutableStateOf("") }
@@ -38,207 +43,312 @@ fun GradeAnalysisScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Modern header with back navigation
+        Surface(
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.fillMaxWidth()
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-            Text(
-                text = "Grade Analysis",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = studentId,
-            onValueChange = { studentId = it },
-            label = { Text("Student ID") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = currentGrades,
-            onValueChange = { currentGrades = it },
-            label = { Text("Current Grades (comma-separated)") },
-            placeholder = { 
-                if (gradeFormat == "raw") Text("85,92,78,88") 
-                else Text("1.25,1.00,1.75,1.50") 
-            },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Grade Format Selection
-        Text(
-            text = "Grade Format",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
-        
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .selectable(
-                        selected = (gradeFormat == "raw"),
-                        onClick = { gradeFormat = "raw" },
-                        role = Role.RadioButton
-                    )
-                    .weight(1f)
-            ) {
-                RadioButton(
-                    selected = (gradeFormat == "raw"),
-                    onClick = { gradeFormat = "raw" }
-                )
-                Text(
-                    text = "Raw (0-100)",
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-            }
-            Row(
+                    .fillMaxWidth()
+                    .padding(Spacing.medium),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .selectable(
-                        selected = (gradeFormat == "transmuted"),
-                        onClick = { gradeFormat = "transmuted" },
-                        role = Role.RadioButton
-                    )
-                    .weight(1f)
+                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
             ) {
-                RadioButton(
-                    selected = (gradeFormat == "transmuted"),
-                    onClick = { gradeFormat = "transmuted" }
+                IconButton(
+                    onClick = onBack,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack, 
+                        contentDescription = "Back",
+                        modifier = Modifier.size(Dimensions.iconMedium)
+                    )
+                }
+                
+                Icon(
+                    imageVector = Icons.Default.BarChart,
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimensions.iconMedium),
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
+                
                 Text(
-                    text = "Transmuted (1.00-5.00)",
-                    modifier = Modifier.padding(start = 4.dp)
+                    text = "Grade Analysis",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = courseUnits,
-            onValueChange = { courseUnits = it },
-            label = { Text("Course Units (comma-separated)") },
-            placeholder = { Text("3,4,3,3") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = historicalGrades,
-            onValueChange = { historicalGrades = it },
-            label = { Text("Historical Grades (semicolon-separated terms)") },
-            placeholder = { Text("80,85,75,82;83,88,77,85") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                val request = GradeAnalysisRequest(
-                    studentId = studentId,
-                    currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                    courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                    historicalGrades = historicalGrades.split(";").map { term ->
-                        term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
-                    },
-                    gradeFormat = gradeFormat
-                )
-                viewModel.analyzeGrades(request)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
+        Column(
+            modifier = Modifier.padding(Spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(Spacing.large)
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text("Analyze Grades")
-        }
-
-        if (uiState.error != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-            ) {
-                Text(
-                    text = "Error: ${uiState.error}",
-                    modifier = Modifier.padding(16.dp),
-                    color = MaterialTheme.colorScheme.onErrorContainer
-                )
-            }
-        }
-
-        uiState.result?.let { result ->
-            Spacer(modifier = Modifier.height(24.dp))
-
+            // Input form card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = Elevation.medium),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.medium)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier.padding(Spacing.large),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                ) {
                     Text(
-                        text = "Analysis Results",
-                        style = MaterialTheme.typography.titleLarge
+                        text = "Student Information",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    EnhancedTextField(
+                        value = studentId,
+                        onValueChange = { studentId = it },
+                        label = "Student ID",
+                        placeholder = "Enter student ID",
+                        leadingIcon = Icons.Default.Person,
+                        helperText = "Enter the unique identifier for the student"
+                    )
 
-                    Text("Weighted Average: ${String.format(Locale.US, "%.2f", result.weightedAverage)}")
-                    Text("Current TWA: ${String.format(Locale.US,"%.2f", result.currentTwa)}")
-                    Text("Grade Distribution: ${result.gradeDistribution}")
-                    Text("Performance Trend: ${result.performanceTrend}")
-                    Text("Improvement Suggestions: ${result.suggestions}")
+                    EnhancedTextField(
+                        value = currentGrades,
+                        onValueChange = { currentGrades = it },
+                        label = "Current Grades",
+                        placeholder = if (gradeFormat == "raw") "85,92,78,88" else "1.25,1.00,1.75,1.50",
+                        leadingIcon = Icons.Default.Grade,
+                        helperText = "Enter grades separated by commas",
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
+
+                    EnhancedRadioGroup(
+                        title = "Grade Format",
+                        options = listOf(
+                            RadioOption(
+                                value = "raw",
+                                label = "Raw (0-100)",
+                                description = "Traditional percentage-based grading"
+                            ),
+                            RadioOption(
+                                value = "transmuted",
+                                label = "Transmuted (1.00-5.00)",
+                                description = "Philippine grading system"
+                            )
+                        ),
+                        selectedOption = gradeFormat,
+                        onSelectionChange = { gradeFormat = it }
+                    )
+
+                    EnhancedTextField(
+                        value = courseUnits,
+                        onValueChange = { courseUnits = it },
+                        label = "Course Units",
+                        placeholder = "3,4,3,3",
+                        leadingIcon = Icons.Default.School,
+                        helperText = "Enter credit hours for each course",
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = KeyboardType.Decimal
+                        )
+                    )
+
+                    EnhancedTextField(
+                        value = historicalGrades,
+                        onValueChange = { historicalGrades = it },
+                        label = "Historical Grades",
+                        placeholder = "80,85,75,82;83,88,77,85",
+                        leadingIcon = Icons.Default.History,
+                        helperText = "Enter previous term grades (semicolon-separated terms)",
+                        minLines = 3,
+                        maxLines = 5
+                    )
                 }
             }
-            
-            // Add grades trend chart automatically
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            ChartDisplay(
-                chartResponse = uiState.chartResponse,
-                isLoading = uiState.isLoadingChart,
-                error = uiState.chartError,
-                onRetry = { 
-                    // Retry chart generation with the last successful student ID
-                    if (uiState.result != null && studentId.isNotBlank()) {
-                        viewModel.analyzeGrades(
-                            GradeAnalysisRequest(
-                                studentId = studentId,
-                                currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                historicalGrades = historicalGrades.split(";").map { term ->
-                                    term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
-                                },
-                                gradeFormat = gradeFormat
-                            )
-                        )
-                    }
+
+            // Action button
+            ModernButton(
+                text = "Analyze Grades",
+                onClick = {
+                    val request = GradeAnalysisRequest(
+                        studentId = studentId,
+                        currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                        courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                        historicalGrades = historicalGrades.split(";").map { term ->
+                            term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
+                        },
+                        gradeFormat = gradeFormat
+                    )
+                    viewModel.analyzeGrades(request)
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isLoading = uiState.isLoading,
+                icon = Icons.Default.Analytics
             )
+
+            // Error display
+            if (uiState.error != null) {
+                ErrorCard(
+                    message = uiState.error!!,
+                    onRetry = {}
+                )
+            }
+
+            // Loading state
+            if (uiState.isLoading) {
+                LoadingCard(message = "Analyzing grades...")
+            }
+
+            // Results display
+            AnimatedVisibility(
+                visible = uiState.result != null,
+                enter = fadeIn() + slideInVertically()
+            ) {
+                uiState.result?.let { result ->
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                    ) {
+                        ResultsCard(
+                            title = "Analysis Results",
+                            icon = Icons.Default.Assessment
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                            ) {
+                                MetricRow(
+                                    label = "Weighted Average",
+                                    value = String.format(Locale.US, "%.2f", result.weightedAverage),
+                                    icon = Icons.Default.BarChart,
+                                    valueColor = when {
+                                        result.weightedAverage >= 90 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                        result.weightedAverage >= 75 -> MaterialTheme.colorScheme.primary
+                                        else -> MaterialTheme.colorScheme.error
+                                    },
+                                    progress = (result.weightedAverage / 100.0).coerceIn(0.0, 1.0),
+                                    badge = when {
+                                        result.weightedAverage >= 90 -> "Excellent"
+                                        result.weightedAverage >= 75 -> "Good" 
+                                        else -> "Needs Improvement"
+                                    }
+                                )
+
+                                MetricRow(
+                                    label = "Current TWA",
+                                    value = String.format(Locale.US, "%.2f", result.currentTwa),
+                                    icon = Icons.AutoMirrored.Filled.TrendingUp,
+                                    valueColor = when {
+                                        result.currentTwa <= 2.0 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                        result.currentTwa <= 3.0 -> MaterialTheme.colorScheme.primary
+                                        else -> MaterialTheme.colorScheme.error
+                                    }
+                                )
+
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                    thickness = 1.dp
+                                )
+
+                                MetricRow(
+                                    label = "Grade Distribution",
+                                    value = result.gradeDistribution,
+                                    icon = Icons.Default.PieChart
+                                )
+
+                                MetricRow(
+                                    label = "Performance Trend",
+                                    value = result.performanceTrend,
+                                    icon = when (result.performanceTrend.lowercase()) {
+                                        "improving" -> Icons.AutoMirrored.Filled.TrendingUp
+                                        "declining" -> Icons.AutoMirrored.Filled.TrendingDown
+                                        else -> Icons.AutoMirrored.Filled.TrendingFlat
+                                    },
+                                    valueColor = when (result.performanceTrend.lowercase()) {
+                                        "improving" -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                        "declining" -> MaterialTheme.colorScheme.error
+                                        else -> MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                    ),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium),
+                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Lightbulb,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(Dimensions.iconSmall),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                            Text(
+                                                text = "Improvement Suggestions",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                        Text(
+                                            text = result.suggestions,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Chart display
+                        if (uiState.isLoadingChart) {
+                            LoadingCard(message = "Generating chart...")
+                        } else if (uiState.chartError != null) {
+                            ErrorCard(
+                                message = uiState.chartError!!,
+                                onRetry = {
+                                    if (studentId.isNotBlank()) {
+                                        val request = GradeAnalysisRequest(
+                                            studentId = studentId,
+                                            currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                            courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                            historicalGrades = historicalGrades.split(";").map { term ->
+                                                term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
+                                            },
+                                            gradeFormat = gradeFormat
+                                        )
+                                        viewModel.analyzeGrades(request)
+                                    }
+                                }
+                            )
+                        } else {
+                            ChartDisplay(
+                                chartResponse = uiState.chartResponse,
+                                isLoading = false,
+                                error = null,
+                                onRetry = {},
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.studentanalytics.app.ui.components.EnhancedAnalyticsCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,35 +62,35 @@ fun ChartsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            AnalyticsCard(
+            EnhancedAnalyticsCard(
                 title = "Grades Trend Chart",
                 description = "Line chart showing grade progression over time for individual students",
                 icon = Icons.Default.TrendingUp,
                 onClick = onNavigateToGradesTrend
             )
 
-            AnalyticsCard(
+            EnhancedAnalyticsCard(
                 title = "Course Comparison Chart",
                 description = "Bar chart comparing student performance across different courses",
                 icon = Icons.Default.BarChart,
                 onClick = onNavigateToCourseComparison
             )
 
-            AnalyticsCard(
+            EnhancedAnalyticsCard(
                 title = "TWA Progress Chart",
                 description = "Line chart showing TWA changes and trends over academic terms",
                 icon = Icons.Default.ShowChart,
                 onClick = onNavigateToTWAProgress
             )
 
-            AnalyticsCard(
+            EnhancedAnalyticsCard(
                 title = "Performance Distribution Chart",
                 description = "Pie chart showing grade distribution across an entire class",
                 icon = Icons.Default.PieChart,
                 onClick = onNavigateToPerformanceDistribution
             )
 
-            AnalyticsCard(
+            EnhancedAnalyticsCard(
                 title = "Class Average Chart",
                 description = "Bar chart comparing class averages by subject and performance metrics",
                 icon = Icons.Default.Assessment,
