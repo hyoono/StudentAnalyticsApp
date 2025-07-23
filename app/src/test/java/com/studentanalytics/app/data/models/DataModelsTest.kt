@@ -93,23 +93,31 @@ class DataModelsTest {
     @Test
     fun scholarshipEligibilityResponse_alignsWithBackendResponse() {
         // Test that ScholarshipEligibilityResponse properly maps backend fields
-        // Backend returns "twaScore" which correctly maps to model "twaScore"
+        // Backend returns "twa", "yearLevel", etc. which correctly map to model fields
         val response = ScholarshipEligibilityResponse(
             eligibilityStatus = "Eligible",
             overallScore = 85.5,
-            twaScore = 70.0, // Backend returns "twaScore" - correct mapping
-            extracurricularScore = 15.5,
+            twa = 1.50, // Backend returns "twa" - correct mapping
+            yearLevel = "3",
+            deansListStatus = "Top Spot Dean's Lister", 
+            currentUnits = 18,
+            completedUnits = 120,
             eligibleScholarships = listOf("Academic Excellence Scholarship", "Dean's List Award"),
-            recommendations = "Apply for multiple scholarship opportunities"
+            recommendations = "Apply for multiple scholarship opportunities",
+            notes = "Subject to review and spot availability"
         )
         
         assertEquals("Eligible", response.eligibilityStatus)
         assertEquals(85.5, response.overallScore, 0.001)
-        assertEquals(70.0, response.twaScore, 0.001) // Correctly mapped from backend
-        assertEquals(15.5, response.extracurricularScore, 0.001)
+        assertEquals(1.50, response.twa, 0.001) // Correctly mapped from backend
+        assertEquals("3", response.yearLevel)
+        assertEquals("Top Spot Dean's Lister", response.deansListStatus)
+        assertEquals(18, response.currentUnits)
+        assertEquals(120, response.completedUnits)
         assertEquals(2, response.eligibleScholarships.size)
         assertEquals("Academic Excellence Scholarship", response.eligibleScholarships[0])
         assertEquals("Apply for multiple scholarship opportunities", response.recommendations)
+        assertEquals("Subject to review and spot availability", response.notes)
     }
     
     @Test
