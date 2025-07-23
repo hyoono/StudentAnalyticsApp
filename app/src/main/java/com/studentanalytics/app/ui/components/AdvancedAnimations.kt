@@ -439,3 +439,144 @@ fun AdvancedLoadingAnimation(
         )
     }
 }
+
+// Container transform animation for smooth content transitions
+@Composable
+fun ContainerTransform(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = slideInVertically(
+            initialOffsetY = { it / 3 },
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationMedium2,
+                easing = MotionTokens.EmphasizedDecelerate
+            )
+        ) + scaleIn(
+            initialScale = 0.9f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { -it / 3 },
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort4,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort3,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ) + scaleOut(
+            targetScale = 1.05f,
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort4,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ),
+        content = content
+    )
+}
+
+// Staggered list animation for sequential item appearance
+@Composable
+fun StaggeredListAnimation(
+    visible: Boolean,
+    itemIndex: Int,
+    modifier: Modifier = Modifier,
+    staggerDelayMs: Int = 50,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    val delay = itemIndex * staggerDelayMs
+    
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = slideInVertically(
+            initialOffsetY = { it / 2 },
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationMedium3 + delay,
+                delayMillis = delay,
+                easing = MotionTokens.EmphasizedDecelerate
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationMedium2,
+                delayMillis = delay,
+                easing = MotionTokens.Standard
+            )
+        ) + scaleIn(
+            initialScale = 0.8f,
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationMedium3,
+                delayMillis = delay,
+                easing = MotionTokens.EmphasizedDecelerate
+            )
+        ),
+        exit = slideOutVertically(
+            targetOffsetY = { -it / 4 },
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort4,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort3,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ),
+        content = content
+    )
+}
+
+// Enhanced scale transition with spring physics
+@Composable
+fun SpringScaleTransition(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+    initialScale: Float = 0.8f,
+    targetScale: Float = 1.0f,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = scaleIn(
+            initialScale = initialScale,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationMedium2,
+                easing = MotionTokens.EmphasizedDecelerate
+            )
+        ),
+        exit = scaleOut(
+            targetScale = targetScale * 1.1f,
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort4,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = MotionTokens.DurationShort3,
+                easing = MotionTokens.EmphasizedAccelerate
+            )
+        ),
+        content = content
+    )
+}

@@ -1,13 +1,13 @@
 package com.studentanalytics.app.ui.screens
 
 import java.util.Locale
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
@@ -16,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import com.studentanalytics.app.data.models.CourseComparisonRequest
 import com.studentanalytics.app.ui.viewmodels.CourseComparisonViewModel
 import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,71 +39,63 @@ fun CourseComparisonScreen(
     var classAverages by remember { mutableStateOf("") }
     var creditHours by remember { mutableStateOf("") }
     var gradeFormat by remember { mutableStateOf("raw") }
+    var contentVisible by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberLazyListState()
+    
+    LaunchedEffect(Unit) {
+        delay(100)
+        contentVisible = true
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Modern header with back navigation
-        Surface(
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+    OneUILayout(
+        title = "Course Comparison",
+        subtitle = "Compare performance across different courses",
+        icon = Icons.AutoMirrored.Filled.CompareArrows,
+        scrollState = scrollState,
+        headerContent = {
+            Spacer(modifier = Modifier.height(Spacing.small))
+            
+            // Back navigation in header
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Spacing.medium),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = onBack,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(20.dp))
                 ) {
                     Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack, 
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        modifier = Modifier.size(Dimensions.iconMedium)
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
                 
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.CompareArrows,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimensions.iconMedium),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-                
-                Text(
-                    text = "Course Comparison",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
-
-        Column(
-            modifier = Modifier.padding(Spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(Spacing.large)
-        ) {
-            // Input form card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = Elevation.medium),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.medium)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(Spacing.medium))
+        }
+        
+        // Input form with staggered animations
+        item {
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Bottom,
+                delayMillis = 0
             ) {
-                Column(
-                    modifier = Modifier.padding(Spacing.large),
-                    verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                AdvancedCard(
+                    onClick = { /* No action for form card */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.medium),
+                    elevation = Elevation.medium
                 ) {
                     Text(
                         text = "Comparison Settings",
@@ -169,205 +163,222 @@ fun CourseComparisonScreen(
                     EnhancedTextField(
                         value = creditHours,
                         onValueChange = { creditHours = it },
-                        label = "Credit Hours",
+                        label = "Credit Units",
                         placeholder = "3,4,3,3",
                         leadingIcon = Icons.Default.AccessTime,
-                        helperText = "Enter credit hours for each course",
+                        helperText = "Enter credit units for each course",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
                 }
             }
-
-            // Action button
-            ModernButton(
-                text = "Compare Performance",
-                onClick = {
-                    val request = CourseComparisonRequest(
-                        studentId = studentId,
-                        courseNames = courseNames.split(",").map { it.trim() },
-                        studentGrades = studentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                        classAverages = classAverages.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                        creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() },
-                        gradeFormat = gradeFormat
-                    )
-                    viewModel.compareCourses(request)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading,
-                isLoading = uiState.isLoading,
-                icon = Icons.AutoMirrored.Filled.CompareArrows
-            )
-
-            // Error display
-            if (uiState.error != null) {
-                ErrorCard(
-                    message = uiState.error!!,
-                    onRetry = {}
+        }
+        
+        // Action button with animation
+        item {
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Bottom,
+                delayMillis = 200
+            ) {
+                ModernButton(
+                    text = "Compare Performance",
+                    onClick = {
+                        val request = CourseComparisonRequest(
+                            studentId = studentId,
+                            courseNames = courseNames.split(",").map { it.trim() },
+                            studentGrades = studentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            classAverages = classAverages.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() },
+                            gradeFormat = gradeFormat
+                        )
+                        viewModel.compareCourses(request)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.medium),
+                    enabled = !uiState.isLoading,
+                    isLoading = uiState.isLoading,
+                    icon = Icons.AutoMirrored.Filled.CompareArrows
                 )
             }
+        }
 
-            // Loading state
-            if (uiState.isLoading) {
-                LoadingCard(message = "Comparing performance...")
+        // Error display with animation
+        if (uiState.error != null) {
+            item {
+                SlideInFromEdge(
+                    visible = true,
+                    edge = AnimationEdge.Bottom,
+                    delayMillis = 100
+                ) {
+                    ErrorCard(
+                        message = uiState.error!!,
+                        onRetry = { /* Implement retry logic */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium)
+                    )
+                }
             }
+        }
 
-            // Results display
-            AnimatedVisibility(
-                visible = uiState.result != null,
-                enter = fadeIn() + slideInVertically()
-            ) {
-                uiState.result?.let { result ->
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+        // Results with enhanced animations
+        uiState.result?.let { result ->
+            item {
+                SlideInFromEdge(
+                    visible = true,
+                    edge = AnimationEdge.Bottom,
+                    delayMillis = 300
+                ) {
+                    ResultsCard(
+                        title = "Comparison Results",
+                        icon = Icons.AutoMirrored.Filled.CompareArrows,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium)
                     ) {
-                        ResultsCard(
-                            title = "Comparison Results",
-                            icon = Icons.Default.Assessment
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(Spacing.small)
-                                ) {
-                                    ProgressIndicatorCard(
-                                        title = "Best Performance",
-                                        progress = 0.85f,
-                                        progressText = result.bestCourse.take(8),
-                                        modifier = Modifier.weight(1f),
-                                        color = androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                    )
-                                    
-                                    ProgressIndicatorCard(
-                                        title = "Weakest Course",
-                                        progress = 0.65f,
-                                        progressText = result.weakestCourse.take(8),
-                                        modifier = Modifier.weight(1f),
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                }
-
-                                MetricRow(
-                                    label = "Best Course",
-                                    value = "${result.bestCourse} (${String.format(Locale.US, "%.2f", result.bestGrade)})",
-                                    icon = Icons.Default.TrendingUp,
-                                    valueColor = androidx.compose.ui.graphics.Color(0xFF4CAF50),
-                                    badge = "Top"
-                                )
-
-                                MetricRow(
-                                    label = "Weakest Course", 
-                                    value = "${result.weakestCourse} (${String.format(Locale.US, "%.2f", result.weakestGrade)})",
-                                    icon = Icons.Default.TrendingDown,
-                                    valueColor = MaterialTheme.colorScheme.error,
-                                    badge = "Focus Area"
-                                )
-
-                                MetricRow(
-                                    label = "Overall TWA",
-                                    value = String.format(Locale.US, "%.2f", result.overallTwa),
-                                    icon = Icons.Default.Calculate,
-                                    valueColor = when {
-                                        result.overallTwa <= 2.0 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                        result.overallTwa <= 3.0 -> MaterialTheme.colorScheme.primary
-                                        else -> MaterialTheme.colorScheme.error
-                                    }
-                                )
-
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                    thickness = 1.dp
-                                )
-
-                                MetricRow(
-                                    label = "Above Class Average",
-                                    value = result.coursesAboveAverage.joinToString(", "),
-                                    icon = Icons.Default.TrendingUp
-                                )
-
-                                MetricRow(
-                                    label = "Below Class Average", 
-                                    value = result.coursesBelowAverage.joinToString(", "),
-                                    icon = Icons.Default.TrendingDown
-                                )
-
-                                MetricRow(
-                                    label = "Performance Variance",
-                                    value = String.format(Locale.US, "%.2f", result.performanceVariance),
-                                    icon = Icons.Default.Analytics
-                                )
-
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                                    ),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(Spacing.medium),
-                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Lightbulb,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(Dimensions.iconSmall),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Text(
-                                                text = "Recommendations",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.primary,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                        Text(
-                                            text = result.recommendations,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        // Chart display
-                        if (uiState.isLoadingChart) {
-                            LoadingCard(message = "Generating chart...")
-                        } else if (uiState.chartError != null) {
-                            ErrorCard(
-                                message = uiState.chartError!!,
-                                onRetry = {
-                                    if (studentId.isNotBlank()) {
-                                        val request = CourseComparisonRequest(
-                                            studentId = studentId,
-                                            courseNames = courseNames.split(",").map { it.trim() },
-                                            studentGrades = studentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                            classAverages = classAverages.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                            creditHours = creditHours.split(",").mapNotNull { it.trim().toIntOrNull() },
-                                            gradeFormat = gradeFormat
-                                        )
-                                        viewModel.compareCourses(request)
-                                    }
-                                }
+                        // Best performing course
+                        Text(
+                            text = "Best Performing Course",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.small))
+                        
+                        Text(
+                            text = "${result.bestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.bestGrade)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        
+                        // Weakest performing course
+                        Text(
+                            text = "Needs Improvement",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.small))
+                        
+                        Text(
+                            text = "${result.weakestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.weakestGrade)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        
+                        // Overall TWA
+                        Text(
+                            text = "Overall TWA",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.small))
+                        
+                        Text(
+                            text = String.format(Locale.getDefault(), "%.2f", result.overallTwa),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        
+                        // Performance variance
+                        Text(
+                            text = "Performance Variance",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.small))
+                        
+                        Text(
+                            text = String.format(Locale.getDefault(), "%.2f", result.performanceVariance),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        
+                        // Above average courses
+                        if (result.coursesAboveAverage.isNotEmpty()) {
+                            Text(
+                                text = "Above Average Courses",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
                             )
-                        } else {
-                            ChartDisplay(
-                                chartResponse = uiState.chartResponse,
-                                isLoading = false,
-                                error = null,
-                                onRetry = {},
-                                modifier = Modifier.fillMaxWidth()
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            result.coursesAboveAverage.forEach { course ->
+                                Text(
+                                    text = "• $course",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = Spacing.medium)
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(Spacing.medium))
+                        }
+                        
+                        // Below average courses
+                        if (result.coursesBelowAverage.isNotEmpty()) {
+                            Text(
+                                text = "Below Average Courses",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            result.coursesBelowAverage.forEach { course ->
+                                Text(
+                                    text = "• $course",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.padding(start = Spacing.medium)
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(Spacing.medium))
+                        }
+                        
+                        // Recommendations
+                        if (result.recommendations.isNotEmpty()) {
+                            Text(
+                                text = "Recommendations",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            Text(
+                                text = result.recommendations,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                 }
             }
+        }
+        
+        item {
+            Spacer(modifier = Modifier.height(Spacing.extraLarge))
         }
     }
 }

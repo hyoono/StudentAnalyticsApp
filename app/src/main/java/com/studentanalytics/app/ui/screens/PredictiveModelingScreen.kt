@@ -1,12 +1,12 @@
 package com.studentanalytics.app.ui.screens
 
 import java.util.Locale
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,7 @@ import com.studentanalytics.app.data.models.PredictiveModelingRequest
 import com.studentanalytics.app.ui.viewmodels.PredictiveModelingViewModel
 import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,71 +37,63 @@ fun PredictiveModelingScreen(
     var courseHours by remember { mutableStateOf("") }
     var creditUnits by remember { mutableStateOf("") }
     var gradeFormat by remember { mutableStateOf("raw") }
+    var contentVisible by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val scrollState = rememberLazyListState()
+    
+    LaunchedEffect(Unit) {
+        delay(100)
+        contentVisible = true
+    }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Modern header with back navigation
-        Surface(
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+    OneUILayout(
+        title = "Predictive Performance Modeling",
+        subtitle = "Forecast academic performance using statistical analysis",
+        icon = Icons.Default.TrendingUp,
+        scrollState = scrollState,
+        headerContent = {
+            Spacer(modifier = Modifier.height(Spacing.small))
+            
+            // Back navigation in header
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Spacing.medium),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = onBack,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(20.dp))
                 ) {
                     Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack, 
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        modifier = Modifier.size(Dimensions.iconMedium)
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
                 
-                Icon(
-                    imageVector = Icons.Default.Psychology,
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimensions.iconMedium),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-                
-                Text(
-                    text = "Predictive Performance Modeling",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
-
-        Column(
-            modifier = Modifier.padding(Spacing.medium),
-            verticalArrangement = Arrangement.spacedBy(Spacing.large)
-        ) {
-            // Input form card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = Elevation.medium),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.medium)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(Spacing.medium))
+        }
+        
+        // Input form with staggered animations
+        item {
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Bottom,
+                delayMillis = 0
             ) {
-                Column(
-                    modifier = Modifier.padding(Spacing.large),
-                    verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                AdvancedCard(
+                    onClick = { /* No action for form card */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.medium),
+                    elevation = Elevation.medium
                 ) {
                     Text(
                         text = "Student Information",
@@ -121,9 +115,9 @@ fun PredictiveModelingScreen(
                         value = historicalGrades,
                         onValueChange = { historicalGrades = it },
                         label = "Historical Grades",
-                        placeholder = if (gradeFormat == "raw") "85,87,82,89,91" else "1.25,1.00,1.75,1.50,1.00",
+                        placeholder = if (gradeFormat == "raw") "85,87,89,92,78" else "1.50,1.25,1.00,1.00,1.75",
                         leadingIcon = Icons.Default.History,
-                        helperText = "Enter previous grades separated by commas",
+                        helperText = "Enter past grades separated by commas",
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         )
@@ -151,8 +145,8 @@ fun PredictiveModelingScreen(
                         value = attendanceRate,
                         onValueChange = { attendanceRate = it },
                         label = "Attendance Rate (%)",
-                        placeholder = "95.50",
-                        leadingIcon = Icons.Default.CheckCircle,
+                        placeholder = "85.5",
+                        leadingIcon = Icons.Default.EventAvailable,
                         helperText = "Enter attendance percentage (0-100)",
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
@@ -163,9 +157,9 @@ fun PredictiveModelingScreen(
                         value = courseHours,
                         onValueChange = { courseHours = it },
                         label = "Course Hours/Week",
-                        placeholder = "40.00",
+                        placeholder = "3.5",
                         leadingIcon = Icons.Default.Schedule,
-                        helperText = "Total weekly course hours (lecture + laboratory)",
+                        helperText = "Enter weekly course hours",
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = KeyboardType.Decimal
                         )
@@ -175,223 +169,176 @@ fun PredictiveModelingScreen(
                         value = creditUnits,
                         onValueChange = { creditUnits = it },
                         label = "Credit Units",
-                        placeholder = "3",
+                        placeholder = "15",
                         leadingIcon = Icons.Default.School,
-                        helperText = "Credit units for the course",
+                        helperText = "Enter total credit units enrolled",
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
                             keyboardType = KeyboardType.Number
                         )
                     )
                 }
             }
-
-            // Action button
-            ModernButton(
-                text = "Generate Prediction",
-                onClick = {
-                    val request = PredictiveModelingRequest(
-                        studentId = studentId,
-                        historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                        attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
-                        courseHours = courseHours.toDoubleOrNull() ?: 0.0,
-                        creditUnits = creditUnits.toIntOrNull() ?: 0,
-                        gradeFormat = gradeFormat
-                    )
-                    viewModel.generatePrediction(request)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !uiState.isLoading,
-                isLoading = uiState.isLoading,
-                icon = Icons.Default.Psychology
-            )
-
-            // Error display
-            if (uiState.error != null) {
-                ErrorCard(
-                    message = uiState.error!!,
-                    onRetry = {}
+        }
+        
+        // Action button with animation
+        item {
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Bottom,
+                delayMillis = 200
+            ) {
+                ModernButton(
+                    text = "Generate Prediction",
+                    onClick = {
+                        val request = PredictiveModelingRequest(
+                            studentId = studentId,
+                            historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
+                            courseHours = courseHours.toDoubleOrNull() ?: 0.0,
+                            creditUnits = creditUnits.toIntOrNull() ?: 0,
+                            gradeFormat = gradeFormat
+                        )
+                        viewModel.generatePrediction(request)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.medium),
+                    enabled = !uiState.isLoading,
+                    isLoading = uiState.isLoading,
+                    icon = Icons.Default.TrendingUp
                 )
             }
+        }
 
-            // Loading state
-            if (uiState.isLoading) {
-                LoadingCard(message = "Generating prediction...")
+        // Error display with animation
+        if (uiState.error != null) {
+            item {
+                SlideInFromEdge(
+                    visible = true,
+                    edge = AnimationEdge.Bottom,
+                    delayMillis = 100
+                ) {
+                    ErrorCard(
+                        message = uiState.error!!,
+                        onRetry = { /* Implement retry logic */ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium)
+                    )
+                }
             }
+        }
 
-            // Results display
-            AnimatedVisibility(
-                visible = uiState.result != null,
-                enter = fadeIn() + slideInVertically()
-            ) {
-                uiState.result?.let { result ->
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+        // Results with enhanced animations
+        uiState.result?.let { result ->
+            item {
+                SlideInFromEdge(
+                    visible = true,
+                    edge = AnimationEdge.Bottom,
+                    delayMillis = 300
+                ) {
+                    ResultsCard(
+                        title = "Prediction Results",
+                        icon = Icons.Default.TrendingUp,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium)
                     ) {
-                        ResultsCard(
-                            title = "Prediction Results",
-                            icon = Icons.Default.Psychology
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
-                            ) {
-                                MetricRow(
-                                    label = "Predicted Next Grade",
-                                    value = String.format(Locale.US, "%.2f", result.predictedGrade),
-                                    icon = Icons.Default.TrendingUp,
-                                    valueColor = when {
-                                        result.predictedGrade >= 90 || result.predictedGrade <= 1.5 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                        result.predictedGrade >= 75 || result.predictedGrade <= 2.5 -> MaterialTheme.colorScheme.primary
-                                        else -> MaterialTheme.colorScheme.error
-                                    },
-                                    progress = if (gradeFormat == "raw") {
-                                        (result.predictedGrade / 100.0).coerceIn(0.0, 1.0)
-                                    } else {
-                                        ((5.0 - result.predictedGrade) / 4.0).coerceIn(0.0, 1.0)
-                                    }
-                                )
-
-                                MetricRow(
-                                    label = "Risk Level",
-                                    value = result.riskLevel,
-                                    icon = when (result.riskLevel.lowercase()) {
-                                        "low" -> Icons.Default.CheckCircle
-                                        "medium" -> Icons.Default.Warning
-                                        "high" -> Icons.Default.Error
-                                        else -> Icons.Default.Info
-                                    },
-                                    valueColor = when (result.riskLevel.lowercase()) {
-                                        "low" -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                        "medium" -> androidx.compose.ui.graphics.Color(0xFFFF9800)
-                                        "high" -> MaterialTheme.colorScheme.error
-                                        else -> MaterialTheme.colorScheme.onSurface
-                                    },
-                                    badge = if (result.atRisk) "At Risk" else null
-                                )
-
-                                MetricRow(
-                                    label = "Confidence Score",
-                                    value = "${String.format(Locale.US, "%.1f", result.confidenceScore)}%",
-                                    icon = Icons.Default.Analytics,
-                                    progress = (result.confidenceScore / 100.0).coerceIn(0.0, 1.0)
-                                )
-
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                    thickness = 1.dp
-                                )
-
-                                MetricRow(
-                                    label = "Trend Analysis",
-                                    value = result.trendAnalysis,
-                                    icon = Icons.Default.TrendingUp
-                                )
-
-                                MetricRow(
-                                    label = "Performance Factors",
-                                    value = result.keyFactors.joinToString(", "),
-                                    icon = Icons.Default.Category
-                                )
-
-                                Card(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                                    ),
-                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(Spacing.medium),
-                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Lightbulb,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(Dimensions.iconSmall),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Text(
-                                                text = "Recommendations",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.primary,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                        Text(
-                                            text = result.recommendations,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
-                                }
-
-                                // At-risk warning card
-                                if (result.atRisk) {
-                                    Card(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                                        ),
-                                        shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(Spacing.medium),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Warning,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(Dimensions.iconMedium),
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                            Text(
-                                                text = "Student identified as at-risk",
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.error,
-                                                fontWeight = FontWeight.SemiBold
-                                            )
-                                        }
-                                    }
-                                }
+                        // Prediction metrics
+                        MetricRow(
+                            label = "Predicted Next Grade",
+                            value = String.format(Locale.getDefault(), "%.2f", result.predictedGrade),
+                            icon = Icons.Default.Star,
+                            valueColor = MaterialTheme.colorScheme.primary
+                        )
+                        
+                        MetricRow(
+                            label = "Risk Level",
+                            value = result.riskLevel,
+                            icon = when (result.riskLevel.lowercase()) {
+                                "low" -> Icons.Default.CheckCircle
+                                "medium" -> Icons.Default.Warning
+                                "high" -> Icons.Default.Error
+                                else -> Icons.Default.Info
+                            },
+                            valueColor = when (result.riskLevel.lowercase()) {
+                                "low" -> MaterialTheme.colorScheme.primary
+                                "medium" -> MaterialTheme.colorScheme.tertiary
+                                "high" -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.secondary
                             }
-                        }
-
-                        // Chart display
-                        if (uiState.isLoadingChart) {
-                            LoadingCard(message = "Generating chart...")
-                        } else if (uiState.chartError != null) {
-                            ErrorCard(
-                                message = uiState.chartError!!,
-                                onRetry = {
-                                    if (studentId.isNotBlank()) {
-                                        val request = PredictiveModelingRequest(
-                                            studentId = studentId,
-                                            historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                            attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
-                                            courseHours = courseHours.toDoubleOrNull() ?: 0.0,
-                                            creditUnits = creditUnits.toIntOrNull() ?: 0,
-                                            gradeFormat = gradeFormat
-                                        )
-                                        viewModel.generatePrediction(request)
-                                    }
-                                }
+                        )
+                        
+                        MetricRow(
+                            label = "Confidence Score",
+                            value = "${String.format(Locale.getDefault(), "%.1f", result.confidenceScore)}%",
+                            icon = Icons.Default.Psychology,
+                            valueColor = MaterialTheme.colorScheme.secondary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(Spacing.medium))
+                        
+                        if (result.trendAnalysis.isNotEmpty()) {
+                            Text(
+                                text = "Trend Analysis",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
                             )
-                        } else {
-                            ChartDisplay(
-                                chartResponse = uiState.chartResponse,
-                                isLoading = false,
-                                error = null,
-                                onRetry = {},
-                                modifier = Modifier.fillMaxWidth()
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            Text(
+                                text = result.trendAnalysis,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.medium))
+                        }
+                        
+                        if (result.trendAnalysis.isNotEmpty()) {
+                            Text(
+                                text = "Trend Analysis",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            Text(
+                                text = result.trendAnalysis,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.medium))
+                        }
+                        
+                        if (result.recommendations.isNotEmpty()) {
+                            Text(
+                                text = "Recommendations",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            
+                            Spacer(modifier = Modifier.height(Spacing.small))
+                            
+                            Text(
+                                text = result.recommendations,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
                 }
             }
+        }
+        
+        item {
+            Spacer(modifier = Modifier.height(Spacing.extraLarge))
         }
     }
 }
