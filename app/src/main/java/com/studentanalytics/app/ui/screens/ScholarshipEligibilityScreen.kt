@@ -1,24 +1,28 @@
 package com.studentanalytics.app.ui.screens
 
 import java.util.Locale
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.studentanalytics.app.data.models.ScholarshipEligibilityRequest
 import com.studentanalytics.app.ui.viewmodels.ScholarshipEligibilityViewModel
-
+import com.studentanalytics.app.ui.components.*
+import com.studentanalytics.app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,7 +30,7 @@ fun ScholarshipEligibilityScreen(
     onBack: () -> Unit,
     viewModel: ScholarshipEligibilityViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("") }
+    var studentId by remember { mutableStateOf("2022161330") }
     var twa by remember { mutableStateOf("") }
     var creditUnits by remember { mutableStateOf("") }
     var completedUnits by remember { mutableStateOf("") }
@@ -35,135 +39,272 @@ fun ScholarshipEligibilityScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        // Modern header with back navigation
+        Surface(
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.fillMaxWidth()
         ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
-            Text(
-                text = "Academic Scholarship Eligibility",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = studentId,
-            onValueChange = { studentId = it },
-            label = { Text("Student ID") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = twa,
-            onValueChange = { twa = it },
-            label = { Text("TWA (1.00 - 5.00, where 1.00 is highest)") },
-            placeholder = { Text("1.25") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = creditUnits,
-            onValueChange = { creditUnits = it },
-            label = { Text("Current Credit Units") },
-            placeholder = { Text("18") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = completedUnits,
-            onValueChange = { completedUnits = it },
-            label = { Text("Completed Units") },
-            placeholder = { Text("75") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = {
-                val request = ScholarshipEligibilityRequest(
-                    studentId = studentId,
-                    twa = twa.toDoubleOrNull() ?: 0.0,
-                    creditUnits = creditUnits.toIntOrNull() ?: 0,
-                    completedUnits = completedUnits.toIntOrNull() ?: 0
-                )
-                viewModel.checkEligibility(request)
-            },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
-        ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text("Check Eligibility")
-        }
-
-        if (uiState.error != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.medium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(Spacing.small)
             ) {
+                IconButton(
+                    onClick = onBack,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack, 
+                        contentDescription = "Back",
+                        modifier = Modifier.size(Dimensions.iconMedium)
+                    )
+                }
+                
+                Icon(
+                    imageVector = Icons.Default.School,
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimensions.iconMedium),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+                
                 Text(
-                    text = "Error: ${uiState.error}",
-                    modifier = Modifier.padding(16.dp),
-                    color = MaterialTheme.colorScheme.onErrorContainer
+                    text = "Academic Scholarship",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
 
-        uiState.result?.let { result ->
-            Spacer(modifier = Modifier.height(24.dp))
-
+        Column(
+            modifier = Modifier.padding(Spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(Spacing.large)
+        ) {
+            // Input form card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = when (result.eligibilityStatus) {
-                        "Eligible" -> MaterialTheme.colorScheme.primaryContainer
-                        "Conditional" -> MaterialTheme.colorScheme.tertiaryContainer
-                        else -> MaterialTheme.colorScheme.errorContainer
-                    }
-                )
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = Elevation.medium),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.medium)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier.padding(Spacing.large),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                ) {
                     Text(
-                        text = "Eligibility Results",
-                        style = MaterialTheme.typography.titleLarge
+                        text = "Eligibility Assessment",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Check eligibility for academic scholarships based on performance criteria",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
-                    Text("Status: ${result.eligibilityStatus}")
-                    Text("Overall Score: ${String.format(Locale.US,"%.2f", result.overallScore)}/100")
-                    Text("TWA Score: ${String.format(Locale.US,"%.2f", result.twaScore)}/70")
-                    Text("Academic Load Score: ${String.format(Locale.US,"%.2f", result.extracurricularScore)}/20")
+                    EnhancedTextField(
+                        value = studentId,
+                        onValueChange = { studentId = it },
+                        label = "Student ID",
+                        placeholder = "Enter student ID",
+                        leadingIcon = Icons.Default.Person,
+                        helperText = "Enter the unique identifier for the student"
+                    )
 
-                    if (result.eligibleScholarships.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Eligible Scholarships: ${result.eligibleScholarships.joinToString(", ")}")
-                    }
+                    EnhancedTextField(
+                        value = twa,
+                        onValueChange = { twa = it },
+                        label = "Term Weighted Average (TWA)",
+                        placeholder = "1.25",
+                        leadingIcon = Icons.Default.Grade,
+                        helperText = "Enter TWA in 1.00-5.00 scale (1.00 is highest)",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                    )
 
-                    if (result.recommendations.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("Recommendations: ${result.recommendations}")
+                    EnhancedTextField(
+                        value = creditUnits,
+                        onValueChange = { creditUnits = it },
+                        label = "Credit Units (Current Term)",
+                        placeholder = "21",
+                        leadingIcon = Icons.Default.MenuBook,
+                        helperText = "Enter total credit units for current term",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+
+                    EnhancedTextField(
+                        value = completedUnits,
+                        onValueChange = { completedUnits = it },
+                        label = "Completed Units",
+                        placeholder = "120",
+                        leadingIcon = Icons.Default.TaskAlt,
+                        helperText = "Enter total completed credit units",
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
+            }
+
+            // Action button
+            ModernButton(
+                text = "Check Eligibility",
+                onClick = {
+                    val request = ScholarshipEligibilityRequest(
+                        studentId = studentId,
+                        twa = twa.toDoubleOrNull() ?: 0.0,
+                        creditUnits = creditUnits.toIntOrNull() ?: 0,
+                        completedUnits = completedUnits.toIntOrNull() ?: 0
+                    )
+                    viewModel.checkEligibility(request)
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !uiState.isLoading,
+                isLoading = uiState.isLoading,
+                icon = Icons.Default.Search
+            )
+
+            // Error display
+            if (uiState.error != null) {
+                ErrorCard(
+                    message = uiState.error!!,
+                    onRetry = {}
+                )
+            }
+
+            // Loading state
+            if (uiState.isLoading) {
+                LoadingCard(message = "Checking eligibility...")
+            }
+
+            // Results display
+            AnimatedVisibility(
+                visible = uiState.result != null,
+                enter = fadeIn() + slideInVertically()
+            ) {
+                uiState.result?.let { result ->
+                    ResultsCard(
+                        title = "Eligibility Results",
+                        icon = Icons.Default.AssignmentTurnedIn
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                        ) {
+                            // Eligibility status card
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (result.eligibilityStatus == "eligible") 
+                                        androidx.compose.ui.graphics.Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                    else 
+                                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+                                ),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(Spacing.medium),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
+                                ) {
+                                    Icon(
+                                        imageVector = if (result.eligibilityStatus == "eligible") Icons.Default.CheckCircle else Icons.Default.Cancel,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(Dimensions.iconLarge),
+                                        tint = if (result.eligibilityStatus == "eligible") 
+                                            androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                        else 
+                                            MaterialTheme.colorScheme.error
+                                    )
+                                    
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = result.eligibilityStatus.replaceFirstChar { it.uppercase() },
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = if (result.eligibilityStatus == "eligible") 
+                                                androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                            else 
+                                                MaterialTheme.colorScheme.error,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = if (result.eligibilityStatus == "eligible") 
+                                                "Qualifies for academic scholarship"
+                                            else 
+                                                "Does not meet scholarship criteria",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+
+                            MetricRow(
+                                label = "Overall Score",
+                                value = String.format(Locale.US, "%.1f", result.overallScore),
+                                icon = Icons.Default.Star,
+                                valueColor = when {
+                                    result.overallScore >= 8.0 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                    result.overallScore >= 6.0 -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.error
+                                },
+                                progress = (result.overallScore / 10.0),
+                                badge = when {
+                                    result.overallScore >= 8.0 -> "Excellent"
+                                    result.overallScore >= 6.0 -> "Good"
+                                    else -> "Below Threshold"
+                                }
+                            )
+
+                            MetricRow(
+                                label = "TWA Score",
+                                value = String.format(Locale.US, "%.1f", result.twaScore),
+                                icon = Icons.Default.MenuBook,
+                                valueColor = MaterialTheme.colorScheme.primary
+                            )
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                ),
+                                shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(Spacing.medium),
+                                    verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(Dimensions.iconSmall),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Text(
+                                            text = "Recommendations",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                    Text(
+                                        text = result.recommendations,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
