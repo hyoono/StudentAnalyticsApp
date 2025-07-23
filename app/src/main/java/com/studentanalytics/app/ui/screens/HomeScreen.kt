@@ -66,8 +66,8 @@ fun HomeScreen(
         )
 
         AnalyticsCard(
-            title = "Scholarship Eligibility",
-            description = "Check student eligibility for scholarships based on criteria",
+            title = "Academic Scholarship Eligibility",
+            description = "Check student eligibility for academic scholarships based on performance criteria",
             icon = Icons.Default.School,
             onClick = onNavigateToScholarshipEligibility
         )

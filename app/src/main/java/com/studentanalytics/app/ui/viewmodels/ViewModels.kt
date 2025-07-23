@@ -164,7 +164,7 @@ class ScholarshipEligibilityViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                // Perform scholarship eligibility analysis
+                // Perform academic scholarship eligibility analysis
                 val result = soapService.checkEligibility(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {

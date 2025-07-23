@@ -46,7 +46,7 @@ fun ScholarshipEligibilityScreen(
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
             Text(
-                text = "Scholarship Eligibility",
+                text = "Academic Scholarship Eligibility",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(start = 8.dp)
             )

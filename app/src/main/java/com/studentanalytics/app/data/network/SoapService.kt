@@ -28,6 +28,77 @@ class SoapService {
     }
 
     /**
+     * Validates GradeAnalysisRequest parameters
+     */
+    private fun validateGradeAnalysisRequest(request: GradeAnalysisRequest) {
+        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
+        require(request.currentGrades.isNotEmpty()) { "Current grades cannot be empty" }
+        require(request.courseUnits.isNotEmpty()) { "Course units cannot be empty" }
+        require(request.currentGrades.size == request.courseUnits.size) { 
+            "Current grades and course units must have the same size" 
+        }
+        require(request.currentGrades.all { it >= 0.0 }) { "Grades cannot be negative" }
+        require(request.courseUnits.all { it > 0 }) { "Course units must be positive" }
+        require(request.gradeFormat in listOf("raw", "transmuted")) { 
+            "Grade format must be 'raw' or 'transmuted'" 
+        }
+    }
+
+    /**
+     * Validates CourseComparisonRequest parameters
+     */
+    private fun validateCourseComparisonRequest(request: CourseComparisonRequest) {
+        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
+        require(request.courseNames.isNotEmpty()) { "Course names cannot be empty" }
+        require(request.studentGrades.isNotEmpty()) { "Student grades cannot be empty" }
+        require(request.classAverages.isNotEmpty()) { "Class averages cannot be empty" }
+        require(request.creditHours.isNotEmpty()) { "Credit hours cannot be empty" }
+        require(request.courseNames.size == request.studentGrades.size) { 
+            "Course names and student grades must have the same size" 
+        }
+        require(request.courseNames.size == request.classAverages.size) { 
+            "Course names and class averages must have the same size" 
+        }
+        require(request.courseNames.size == request.creditHours.size) { 
+            "Course names and credit hours must have the same size" 
+        }
+        require(request.studentGrades.all { it >= 0.0 }) { "Student grades cannot be negative" }
+        require(request.classAverages.all { it >= 0.0 }) { "Class averages cannot be negative" }
+        require(request.creditHours.all { it > 0 }) { "Credit hours must be positive" }
+        require(request.gradeFormat in listOf("raw", "transmuted")) { 
+            "Grade format must be 'raw' or 'transmuted'" 
+        }
+    }
+
+    /**
+     * Validates PredictiveModelingRequest parameters
+     */
+    private fun validatePredictiveModelingRequest(request: PredictiveModelingRequest) {
+        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
+        require(request.historicalGrades.isNotEmpty()) { "Historical grades cannot be empty" }
+        require(request.attendanceRate in 0.0..100.0) { "Attendance rate must be between 0 and 100" }
+        require(request.courseHours > 0.0) { "Course hours must be positive" }
+        require(request.creditUnits > 0) { "Credit units must be positive" }
+        require(request.historicalGrades.all { it >= 0.0 }) { "Historical grades cannot be negative" }
+        require(request.gradeFormat in listOf("raw", "transmuted")) { 
+            "Grade format must be 'raw' or 'transmuted'" 
+        }
+    }
+
+    /**
+     * Validates ScholarshipEligibilityRequest parameters
+     */
+    private fun validateScholarshipEligibilityRequest(request: ScholarshipEligibilityRequest) {
+        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
+        require(request.twa >= 1.0 && request.twa <= 5.0) { "TWA must be between 1.0 and 5.0" }
+        require(request.creditUnits > 0) { "Credit units must be positive" }
+        require(request.completedUnits >= 0) { "Completed units cannot be negative" }
+        require(request.completedUnits <= request.creditUnits) { 
+            "Completed units cannot exceed total credit units" 
+        }
+    }
+
+    /**
      * Generate realistic TWA progression data for a student
      * Backend expects format: "Fall 2022:1.75,Spring 2023:1.50,Fall 2023:1.25"
      */
@@ -67,48 +138,73 @@ class SoapService {
         return gradeData.entries.joinToString(",") { "${it.key}:${it.value}" }
     }
 
+    /**
+     * Analyzes student grades with enhanced error handling and validation
+     */
     suspend fun analyzeGrades(request: GradeAnalysisRequest): GradeAnalysisResponse {
         return withContext(Dispatchers.IO) {
+            validateGradeAnalysisRequest(request)
             val soapEnvelope = createGradeAnalysisSoapEnvelope(request)
             val response = sendSoapRequest(soapEnvelope, "analyzeGrades")
             parseGradeAnalysisResponse(response)
         }
     }
 
+    /**
+     * Analyzes student grades with integrated chart generation
+     */
     suspend fun analyzeGradesWithChart(request: GradeAnalysisRequest): ChartResponse {
         return withContext(Dispatchers.IO) {
+            validateGradeAnalysisRequest(request)
             val soapEnvelope = createGradeAnalysisWithChartSoapEnvelope(request)
             val response = sendSoapRequest(soapEnvelope, "generateGradeAnalysisWithChart")
             parseIntegratedAnalysisChartResponse(response)
         }
     }
 
+    /**
+     * Compares course performance with enhanced validation
+     */
     suspend fun compareCourses(request: CourseComparisonRequest): CourseComparisonResponse {
         return withContext(Dispatchers.IO) {
+            validateCourseComparisonRequest(request)
             val soapEnvelope = createCourseComparisonSoapEnvelope(request)
             val response = sendSoapRequest(soapEnvelope, "compareCourses")
             parseCourseComparisonResponse(response)
         }
     }
 
+    /**
+     * Generates predictive modeling results with validation
+     */
     suspend fun generatePrediction(request: PredictiveModelingRequest): PredictiveModelingResponse {
         return withContext(Dispatchers.IO) {
+            validatePredictiveModelingRequest(request)
             val soapEnvelope = createPredictiveModelingSoapEnvelope(request)
             val response = sendSoapRequest(soapEnvelope, "generatePrediction")
             parsePredictiveModelingResponse(response)
         }
     }
 
+    /**
+     * Generates predictive modeling results with integrated chart
+     */
     suspend fun generatePredictionWithChart(request: PredictiveModelingRequest, width: Int = 800, height: Int = 600): ChartResponse {
         return withContext(Dispatchers.IO) {
-            val soapEnvelope = createPredictiveModelingWithChartSoapEnvelope(request, width, height)
+            validatePredictiveModelingRequest(request)
+            val (validatedWidth, validatedHeight) = validateChartDimensions(width, height)
+            val soapEnvelope = createPredictiveModelingWithChartSoapEnvelope(request, validatedWidth, validatedHeight)
             val response = sendSoapRequest(soapEnvelope, "generatePredictionWithChart")
             parseChartResponse(response)
         }
     }
 
+    /**
+     * Checks academic scholarship eligibility with validation
+     */
     suspend fun checkEligibility(request: ScholarshipEligibilityRequest): ScholarshipEligibilityResponse {
         return withContext(Dispatchers.IO) {
+            validateScholarshipEligibilityRequest(request)
             val soapEnvelope = createScholarshipEligibilitySoapEnvelope(request)
             val response = sendSoapRequest(soapEnvelope, "checkScholarshipEligibility")
             parseScholarshipEligibilityResponse(response)
@@ -189,36 +285,47 @@ class SoapService {
         }
     }
 
+    /**
+     * Sends SOAP request to backend with enhanced error handling
+     */
     private fun sendSoapRequest(soapEnvelope: String, action: String): String {
         val url = URL(baseUrl)
         val connection = url.openConnection() as HttpURLConnection
 
-        connection.requestMethod = "POST"
-        connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8")
-        connection.setRequestProperty("SOAPAction", action)
-        connection.doOutput = true
+        try {
+            connection.requestMethod = "POST"
+            connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8")
+            connection.setRequestProperty("SOAPAction", action)
+            connection.setRequestProperty("User-Agent", "StudentAnalyticsApp/1.0")
+            connection.connectTimeout = 30000 // 30 seconds
+            connection.readTimeout = 60000 // 60 seconds
+            connection.doOutput = true
 
-        val outputStream = connection.outputStream
-        outputStream.write(soapEnvelope.toByteArray())
-        outputStream.flush()
-        outputStream.close()
+            // Send request
+            connection.outputStream.use { outputStream ->
+                outputStream.write(soapEnvelope.toByteArray(Charsets.UTF_8))
+                outputStream.flush()
+            }
 
-        val responseCode = connection.responseCode
-        val inputStream = if (responseCode == HttpURLConnection.HTTP_OK) {
-            connection.inputStream
-        } else {
-            connection.errorStream
+            val responseCode = connection.responseCode
+            val response = if (responseCode == HttpURLConnection.HTTP_OK) {
+                connection.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+            } else {
+                val errorResponse = connection.errorStream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } ?: "No error details available"
+                throw Exception("SOAP Request Failed - Action: $action, HTTP $responseCode: $errorResponse")
+            }
+
+            // Validate response contains expected structure
+            if (!response.contains("{") || !response.contains("}")) {
+                throw Exception("Invalid response format from backend - Action: $action, Response: ${response.take(200)}...")
+            }
+
+            return response
+        } catch (e: Exception) {
+            throw Exception("Failed to execute SOAP request '$action': ${e.message}", e)
+        } finally {
+            connection.disconnect()
         }
-
-        val response = inputStream.bufferedReader().use { it.readText() }
-        inputStream.close()
-        connection.disconnect()
-
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw Exception("HTTP Error: $responseCode - $response")
-        }
-
-        return response
     }
 
     private fun createGradeAnalysisSoapEnvelope(request: GradeAnalysisRequest): String {

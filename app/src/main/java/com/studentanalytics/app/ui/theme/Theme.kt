@@ -6,17 +6,45 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF6200EE),
+    primary = MapuaBlue,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFF3700B3),
-    secondary = Color(0xFF03DAC6)
+    primaryContainer = MapuaDarkBlue,
+    onPrimaryContainer = Color.White,
+    secondary = MapuaRed,
+    onSecondary = Color.White,
+    secondaryContainer = MapuaLightRed,
+    onSecondaryContainer = Color.White,
+    tertiary = MapuaLightBlue,
+    onTertiary = Color.White,
+    error = MapuaRed,
+    onError = Color.White,
+    background = MapuaDarkGray,
+    onBackground = Color.White,
+    surface = MapuaDarkGray,
+    onSurface = Color.White,
+    surfaceVariant = MapuaGray,
+    onSurfaceVariant = Color.White
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6200EE),
+    primary = MapuaBlue,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFBB86FC),
-    secondary = Color(0xFF03DAC6)
+    primaryContainer = MapuaLightBlue,
+    onPrimaryContainer = Color.White,
+    secondary = MapuaRed,
+    onSecondary = Color.White,
+    secondaryContainer = MapuaLightRed,
+    onSecondaryContainer = Color.White,
+    tertiary = MapuaDarkBlue,
+    onTertiary = Color.White,
+    error = MapuaRed,
+    onError = Color.White,
+    background = MapuaLightGray,
+    onBackground = MapuaDarkGray,
+    surface = Color.White,
+    onSurface = MapuaDarkGray,
+    surfaceVariant = MapuaLightGray,
+    onSurfaceVariant = MapuaGray
 )
 
 @Composable
