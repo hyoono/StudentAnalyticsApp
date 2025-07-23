@@ -45,7 +45,7 @@ object MotionTokens {
     val StandardAccelerate = CubicBezierEasing(0.3f, 0.0f, 1.0f, 1.0f)
     val StandardDecelerate = CubicBezierEasing(0.0f, 0.0f, 0.0f, 1.0f)
     
-    // Spring specifications
+    // Spring specifications for Float
     val SpringLowDamping = spring<Float>(
         dampingRatio = Spring.DampingRatioLowBouncy,
         stiffness = Spring.StiffnessMedium
@@ -64,6 +64,17 @@ object MotionTokens {
     val SpringSoft = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessLow
+    )
+    
+    // Spring specifications for Dp
+    val SpringSoftDp = spring<Dp>(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessLow
+    )
+    
+    val SpringMediumDampingDp = spring<Dp>(
+        dampingRatio = Spring.DampingRatioMediumBouncy,
+        stiffness = Spring.StiffnessMedium
     )
 }
 
@@ -122,8 +133,10 @@ fun rememberParallaxState(
     scrollState: LazyListState,
     rate: Float = 0.5f
 ): State<Float> {
-    return derivedStateOf {
-        scrollState.firstVisibleItemScrollOffset * rate
+    return remember(scrollState, rate) {
+        derivedStateOf {
+            scrollState.firstVisibleItemScrollOffset * rate
+        }
     }
 }
 

@@ -203,7 +203,7 @@ fun EnhancedAnalyticsCard(
                     badgeVisible = true
                 }
                 
-                AnimatedVisibility(
+                androidx.compose.animation.AnimatedVisibility(
                     visible = badgeVisible,
                     modifier = Modifier
                         .align(Alignment.TopEnd)

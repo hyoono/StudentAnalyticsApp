@@ -201,7 +201,7 @@ fun AdvancedCard(
             isHovered -> elevation + 2.dp
             else -> elevation
         },
-        animationSpec = MotionTokens.SpringSoft,
+        animationSpec = MotionTokens.SpringSoftDp,
         label = "cardElevation"
     )
     
@@ -270,13 +270,13 @@ fun AdvancedFloatingActionButton(
     
     val elevation by animateDpAsState(
         targetValue = if (isPressed) 4.dp else 12.dp,
-        animationSpec = MotionTokens.SpringSoft,
+        animationSpec = MotionTokens.SpringSoftDp,
         label = "fabElevation"
     )
     
     val fabWidth by animateDpAsState(
         targetValue = if (expanded && text != null) 200.dp else 56.dp,
-        animationSpec = MotionTokens.SpringMediumDamping,
+        animationSpec = MotionTokens.SpringMediumDampingDp,
         label = "fabWidth"
     )
     

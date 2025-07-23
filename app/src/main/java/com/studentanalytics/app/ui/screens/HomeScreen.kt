@@ -152,7 +152,9 @@ fun HomeScreen(
                         }
                     }
                 }
+            }
             
+            // Add spacer between items except after the last one
             if (index < 3) {
                 item {
                     Spacer(modifier = Modifier.height(Spacing.medium))
