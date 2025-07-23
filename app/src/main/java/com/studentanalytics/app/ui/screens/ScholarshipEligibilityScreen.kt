@@ -129,7 +129,7 @@ fun ScholarshipEligibilityScreen(
                         label = "Term Weighted Average (TWA)",
                         placeholder = "1.25",
                         leadingIcon = Icons.Default.Grade,
-                        helperText = "Enter TWA in 1.00-5.00 scale (1.00 is highest)",
+                        helperText = "Enter TWA in 1.00-2.00 scale (1.00 is highest)",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                     )
 

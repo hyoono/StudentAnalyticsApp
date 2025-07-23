@@ -25,7 +25,7 @@ class GradeAnalysisViewModel : ViewModel() {
 
     fun analyzeGrades(request: GradeAnalysisRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null, isLoadingChart = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null, isLoadingChart = true)
             try {
                 // Perform grade analysis
                 val result = soapService.analyzeGrades(request)
@@ -38,6 +38,8 @@ class GradeAnalysisViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false, 
                     isLoadingChart = false,
+                    result = null,
+                    chartResponse = null,
                     error = e.message,
                     chartError = e.message
                 )
@@ -62,7 +64,7 @@ class CourseComparisonViewModel : ViewModel() {
 
     fun compareCourses(request: CourseComparisonRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null)
             try {
                 // Perform course comparison analysis
                 val result = soapService.compareCourses(request)
@@ -71,7 +73,7 @@ class CourseComparisonViewModel : ViewModel() {
                 // Automatically generate course comparison chart with the same data used for analysis
                 generateCourseComparisonChart(request)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
@@ -94,7 +96,7 @@ class CourseComparisonViewModel : ViewModel() {
                 val chartResult = soapService.generateCourseComparisonChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartError = e.message)
+                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = null, chartError = e.message)
             }
         }
     }
@@ -116,7 +118,7 @@ class PredictiveModelingViewModel : ViewModel() {
 
     fun generatePrediction(request: PredictiveModelingRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, chartError = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null)
             try {
                 // Perform predictive modeling analysis
                 val result = soapService.generatePrediction(request)
@@ -125,7 +127,7 @@ class PredictiveModelingViewModel : ViewModel() {
                 // Automatically generate TWA progress chart using the same user input data
                 generateTWAProgressChart(request)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
@@ -143,7 +145,7 @@ class PredictiveModelingViewModel : ViewModel() {
                 )
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartError = e.message)
+                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = null, chartError = e.message)
             }
         }
     }
@@ -162,13 +164,13 @@ class ScholarshipEligibilityViewModel : ViewModel() {
 
     fun checkEligibility(request: ScholarshipEligibilityRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 // Perform academic scholarship eligibility analysis
                 val result = soapService.checkEligibility(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
@@ -187,60 +189,60 @@ class ChartViewModel : ViewModel() {
 
     fun generateGradesTrendChart(request: ChartRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 val result = soapService.generateGradesTrendChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
 
     fun generateCourseComparisonChart(request: ChartRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 val result = soapService.generateCourseComparisonChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
 
     fun generateTWAProgressChart(request: ChartRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 val result = soapService.generateTWAProgressChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
 
     fun generatePerformanceDistributionChart(request: ChartRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 val result = soapService.generatePerformanceDistributionChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
 
     fun generateClassAverageChart(request: ChartRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null)
             try {
                 val result = soapService.generateClassAverageChart(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, error = e.message)
+                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
             }
         }
     }
