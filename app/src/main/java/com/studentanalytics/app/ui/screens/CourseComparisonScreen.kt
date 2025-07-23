@@ -31,7 +31,7 @@ fun CourseComparisonScreen(
     onBack: () -> Unit,
     viewModel: CourseComparisonViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("2022161330") }
+    var studentId by remember { mutableStateOf("") }
     var courseNames by remember { mutableStateOf("") }
     var studentGrades by remember { mutableStateOf("") }
     var classAverages by remember { mutableStateOf("") }

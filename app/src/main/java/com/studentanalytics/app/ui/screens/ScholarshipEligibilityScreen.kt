@@ -291,10 +291,12 @@ fun ScholarshipEligibilityScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (result.eligibilityStatus == "eligible") 
-                                        androidx.compose.ui.graphics.Color(0xFF4CAF50).copy(alpha = 0.1f)
-                                    else 
-                                        MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+                                    containerColor = when (result.eligibilityStatus.lowercase()) {
+                                        "not eligible" -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
+                                        "eligible" -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
+                                        "conditional" -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f)
+                                        else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f)
+                                    }
                                 ),
                                 shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
                             ) {
@@ -304,30 +306,41 @@ fun ScholarshipEligibilityScreen(
                                     horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
                                 ) {
                                     Icon(
-                                        imageVector = if (result.eligibilityStatus == "eligible") Icons.Default.CheckCircle else Icons.Default.Cancel,
+                                        imageVector = when (result.eligibilityStatus.lowercase()) {
+                                            "not eligible" -> Icons.Default.Cancel
+                                            "eligible" -> Icons.Default.School
+                                            "conditional" -> Icons.Default.HourglassEmpty
+                                            else -> Icons.Default.Help
+                                        },
                                         contentDescription = null,
                                         modifier = Modifier.size(Dimensions.iconLarge),
-                                        tint = if (result.eligibilityStatus == "eligible") 
-                                            androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                        else 
-                                            MaterialTheme.colorScheme.error
+                                        tint = when (result.eligibilityStatus.lowercase()) {
+                                            "not eligible" -> MaterialTheme.colorScheme.error
+                                            "eligible" -> MaterialTheme.colorScheme.primary
+                                            "conditional" -> MaterialTheme.colorScheme.tertiary
+                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
                                     )
                                     
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = result.eligibilityStatus.replaceFirstChar { it.uppercase() },
                                             style = MaterialTheme.typography.titleLarge,
-                                            color = if (result.eligibilityStatus == "eligible") 
-                                                androidx.compose.ui.graphics.Color(0xFF4CAF50)
-                                            else 
-                                                MaterialTheme.colorScheme.error,
+                                            color = when (result.eligibilityStatus.lowercase()) {
+                                                "not eligible" -> MaterialTheme.colorScheme.error
+                                                "eligible" -> MaterialTheme.colorScheme.primary
+                                                "conditional" -> MaterialTheme.colorScheme.tertiary
+                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = if (result.eligibilityStatus == "eligible") 
-                                                "Qualifies for academic scholarship"
-                                            else 
-                                                "Does not meet scholarship criteria",
+                                            text = when (result.eligibilityStatus.lowercase()) {
+                                                "eligible" -> "Qualifies for academic scholarship"
+                                                "conditional" -> "May qualify with additional requirements"
+                                                "not eligible" -> "Does not meet scholarship criteria"
+                                                else -> "Eligibility status unclear"
+                                            },
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
