@@ -139,7 +139,7 @@ fun CourseComparisonScreen(
                             RadioOption(
                                 value = "transmuted",
                                 label = "Transmuted (1.00-5.00)",
-                                description = "Philippine grading system"
+                                description = "Mapua MCL's grading system where 1.00 is highest"
                             )
                         ),
                         selectedOption = gradeFormat,

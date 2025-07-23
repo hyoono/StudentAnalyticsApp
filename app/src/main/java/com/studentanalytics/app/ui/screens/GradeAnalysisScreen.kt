@@ -32,7 +32,7 @@ fun GradeAnalysisScreen(
     onBack: () -> Unit,
     viewModel: GradeAnalysisViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("2022161330") }
+    var studentId by remember { mutableStateOf("") }
     var currentGrades by remember { mutableStateOf("") }
     var courseUnits by remember { mutableStateOf("") }
     var historicalGrades by remember { mutableStateOf("") }
@@ -142,7 +142,7 @@ fun GradeAnalysisScreen(
                             RadioOption(
                                 value = "transmuted",
                                 label = "Transmuted (1.00-5.00)",
-                                description = "Philippine grading system"
+                                description = "Mapua MCL's grading system where 1.00 is highest"
                             )
                         ),
                         selectedOption = gradeFormat,

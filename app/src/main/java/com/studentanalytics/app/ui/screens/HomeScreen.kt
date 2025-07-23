@@ -143,8 +143,7 @@ fun HomeScreen(
                     title = "Predictive Performance Modeling",
                     description = "Advanced predictive analytics to forecast academic performance and identify at-risk students",
                     icon = Icons.Default.Psychology,
-                    onClick = onNavigateToPredictiveModeling,
-                    badge = "AI Powered"
+                    onClick = onNavigateToPredictiveModeling
                 )
 
                 EnhancedAnalyticsCard(
