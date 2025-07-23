@@ -30,7 +30,7 @@ fun ScholarshipEligibilityScreen(
     onBack: () -> Unit,
     viewModel: ScholarshipEligibilityViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("2022161330") }
+    var studentId by remember { mutableStateOf("") }
     var twa by remember { mutableStateOf("") }
     var creditUnits by remember { mutableStateOf("") }
     var completedUnits by remember { mutableStateOf("") }

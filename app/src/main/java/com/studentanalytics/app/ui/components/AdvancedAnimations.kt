@@ -159,22 +159,30 @@ class CollapsingHeaderState(
     private val headerHeight: Float
 ) {
     val scrollOffset: Float
-        get() = min(
-            scrollState.firstVisibleItemScrollOffset.toFloat(),
+        get() = if (scrollState.firstVisibleItemIndex == 0) {
+            min(
+                scrollState.firstVisibleItemScrollOffset.toFloat().coerceAtLeast(0f),
+                headerHeight
+            )
+        } else {
             headerHeight
-        )
+        }
     
     val progress: Float
-        get() = (scrollOffset / headerHeight).coerceIn(0f, 1f)
+        get() = if (headerHeight > 0f) {
+            (scrollOffset / headerHeight).coerceIn(0f, 1f)
+        } else {
+            0f
+        }
     
     val height: Float
-        get() = headerHeight - scrollOffset
+        get() = (headerHeight - scrollOffset).coerceAtLeast(0f)
     
     val alpha: Float
-        get() = 1f - progress
+        get() = (1f - progress).coerceIn(0f, 1f)
         
     val titleAlpha: Float
-        get() = if (progress > 0.5f) (progress - 0.5f) * 2f else 0f
+        get() = if (progress > 0.5f) ((progress - 0.5f) * 2f).coerceIn(0f, 1f) else 0f
 }
 
 // Container transform animation

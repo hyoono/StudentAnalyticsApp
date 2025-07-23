@@ -53,11 +53,12 @@ fun OneUILayout(
     
     val collapsingState = rememberCollapsingHeaderState(scrollState, headerHeight)
     
-    // Calculate dynamic values based on scroll
-    val headerCurrentHeight = lerp(minHeaderHeight, headerHeight, 1f - collapsingState.progress)
-    val titleScale = androidx.compose.ui.util.lerp(0.7f, 1f, 1f - collapsingState.progress)
-    val titleAlpha = androidx.compose.ui.util.lerp(0.3f, 1f, 1f - collapsingState.progress)
-    val backgroundAlpha = androidx.compose.ui.util.lerp(0f, 1f, collapsingState.progress)
+    // Calculate dynamic values based on scroll with proper bounds
+    val progress = collapsingState.progress.coerceIn(0f, 1f)
+    val headerCurrentHeight = lerp(minHeaderHeight, headerHeight, (1f - progress).coerceIn(0f, 1f))
+    val titleScale = androidx.compose.ui.util.lerp(0.7f, 1f, (1f - progress).coerceIn(0f, 1f))
+    val titleAlpha = androidx.compose.ui.util.lerp(0.3f, 1f, (1f - progress).coerceIn(0f, 1f))
+    val backgroundAlpha = androidx.compose.ui.util.lerp(0f, 1f, progress)
     
     Box(modifier = modifier.fillMaxSize()) {
         LazyColumn(
@@ -76,14 +77,14 @@ fun OneUILayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(headerCurrentHeight),
-            color = MaterialTheme.colorScheme.surface.copy(alpha = backgroundAlpha),
-            tonalElevation = if (collapsingState.progress > 0.1f) 4.dp else 0.dp
+            color = MaterialTheme.colorScheme.surface.copy(alpha = backgroundAlpha.coerceIn(0f, 1f)),
+            tonalElevation = if (progress > 0.1f) 4.dp else 0.dp
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        brush = if (collapsingState.progress < 0.1f) {
+                        brush = if (progress < 0.1f) {
                             Brush.verticalGradient(
                                 colors = listOf(
                                     MaterialTheme.colorScheme.surface,
@@ -113,12 +114,12 @@ fun OneUILayout(
                 ) {
                     // Large icon that shrinks
                     icon?.let {
-                        val iconSize = lerp(24.dp, 48.dp, 1f - collapsingState.progress)
+                        val iconSize = lerp(24.dp, 48.dp, (1f - progress).coerceIn(0f, 1f))
                         Surface(
-                            modifier = Modifier.size(iconSize + Spacing.small),
+                            modifier = Modifier.size((iconSize + Spacing.small).coerceAtLeast(24.dp)),
                             shape = RoundedCornerShape(CornerRadius.small),
                             color = MaterialTheme.colorScheme.primaryContainer.copy(
-                                alpha = androidx.compose.ui.util.lerp(0.1f, 0.2f, 1f - collapsingState.progress)
+                                alpha = androidx.compose.ui.util.lerp(0.1f, 0.2f, (1f - progress).coerceIn(0f, 1f))
                             )
                         ) {
                             Box(
@@ -143,13 +144,13 @@ fun OneUILayout(
                         Text(
                             text = title,
                             style = MaterialTheme.typography.headlineLarge.copy(
-                                fontSize = androidx.compose.ui.unit.lerp(24.sp, 32.sp, 1f - collapsingState.progress),
+                                fontSize = androidx.compose.ui.unit.lerp(24.sp, 32.sp, (1f - progress).coerceIn(0f, 1f)),
                                 fontWeight = FontWeight.Bold
                             ),
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = titleAlpha),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = titleAlpha.coerceIn(0f, 1f)),
                             modifier = Modifier.graphicsLayer {
-                                scaleX = titleScale
-                                scaleY = titleScale
+                                scaleX = titleScale.coerceIn(0.1f, 2f)
+                                scaleY = titleScale.coerceIn(0.1f, 2f)
                             }
                         )
                         
@@ -158,9 +159,9 @@ fun OneUILayout(
                                 text = sub,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(
-                                    alpha = androidx.compose.ui.util.lerp(0f, 0.8f, 1f - collapsingState.progress)
+                                    alpha = androidx.compose.ui.util.lerp(0f, 0.8f, (1f - progress).coerceIn(0f, 1f))
                                 ),
-                                modifier = Modifier.alpha(1f - collapsingState.progress)
+                                modifier = Modifier.alpha((1f - progress).coerceIn(0f, 1f))
                             )
                         }
                     }
@@ -170,7 +171,7 @@ fun OneUILayout(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .alpha(1f - collapsingState.progress)
+                        .alpha((1f - progress).coerceIn(0f, 1f))
                 ) {
                     Column {
                         headerContent()
