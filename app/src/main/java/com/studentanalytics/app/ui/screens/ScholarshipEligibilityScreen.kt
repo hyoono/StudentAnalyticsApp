@@ -34,6 +34,8 @@ fun ScholarshipEligibilityScreen(
     var twa by remember { mutableStateOf("") }
     var creditUnits by remember { mutableStateOf("") }
     var completedUnits by remember { mutableStateOf("") }
+    var yearLevel by remember { mutableStateOf("") }
+    var deansListStatus by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
 
     Column(
@@ -150,6 +152,92 @@ fun ScholarshipEligibilityScreen(
                         helperText = "Enter total completed credit units",
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                     )
+
+                    // Dropdown for Year Level
+                    var yearLevelExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = yearLevelExpanded,
+                        onExpandedChange = { yearLevelExpanded = !yearLevelExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = when (yearLevel) {
+                                "1" -> "1st Year"
+                                "2" -> "2nd Year" 
+                                "3" -> "3rd Year"
+                                "4" -> "4th Year"
+                                "5" -> "5th Year"
+                                else -> ""
+                            },
+                            onValueChange = { },
+                            label = { Text("Year Level") },
+                            placeholder = { Text("Select year level") },
+                            leadingIcon = { Icon(Icons.Default.School, contentDescription = null) },
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = yearLevelExpanded) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = yearLevelExpanded,
+                            onDismissRequest = { yearLevelExpanded = false }
+                        ) {
+                            listOf("1st Year" to "1", "2nd Year" to "2", "3rd Year" to "3", "4th Year" to "4", "5th Year" to "5").forEach { (display, value) ->
+                                DropdownMenuItem(
+                                    text = { Text(display) },
+                                    onClick = {
+                                        yearLevel = value
+                                        yearLevelExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // Dropdown for Dean's List Status
+                    var deansListExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = deansListExpanded,
+                        onExpandedChange = { deansListExpanded = !deansListExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = when (deansListStatus) {
+                                "top_spot" -> "Top Spot Dean's Lister"
+                                "regular" -> "Regular Dean's Lister"
+                                "none" -> "Not on Dean's List"
+                                else -> ""
+                            },
+                            onValueChange = { },
+                            label = { Text("Dean's List Status") },
+                            placeholder = { Text("Select Dean's List status") },
+                            leadingIcon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) },
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = deansListExpanded) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = deansListExpanded,
+                            onDismissRequest = { deansListExpanded = false }
+                        ) {
+                            listOf(
+                                "Top Spot Dean's Lister" to "top_spot",
+                                "Regular Dean's Lister" to "regular", 
+                                "Not on Dean's List" to "none"
+                            ).forEach { (display, value) ->
+                                DropdownMenuItem(
+                                    text = { Text(display) },
+                                    onClick = {
+                                        deansListStatus = value
+                                        deansListExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -161,7 +249,9 @@ fun ScholarshipEligibilityScreen(
                         studentId = studentId,
                         twa = twa.toDoubleOrNull() ?: 0.0,
                         creditUnits = creditUnits.toIntOrNull() ?: 0,
-                        completedUnits = completedUnits.toIntOrNull() ?: 0
+                        completedUnits = completedUnits.toIntOrNull() ?: 0,
+                        yearLevel = yearLevel.ifBlank { null },
+                        deansListStatus = deansListStatus.ifBlank { null }
                     )
                     viewModel.checkEligibility(request)
                 },
@@ -263,11 +353,112 @@ fun ScholarshipEligibilityScreen(
                             )
 
                             MetricRow(
-                                label = "TWA Score",
-                                value = String.format(Locale.US, "%.1f", result.twaScore),
+                                label = "Term Weighted Average",
+                                value = String.format(Locale.US, "%.2f", result.twa),
                                 icon = Icons.Default.MenuBook,
-                                valueColor = MaterialTheme.colorScheme.primary
+                                valueColor = when {
+                                    result.twa <= 1.25 -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                    result.twa <= 1.50 -> MaterialTheme.colorScheme.primary
+                                    result.twa <= 2.00 -> androidx.compose.ui.graphics.Color(0xFFFF9800)
+                                    else -> MaterialTheme.colorScheme.error
+                                },
+                                badge = when {
+                                    result.twa <= 1.25 -> "Excellent"
+                                    result.twa <= 1.50 -> "Very Good"
+                                    result.twa <= 2.00 -> "Good"
+                                    else -> "Needs Improvement"
+                                }
                             )
+
+                            // Additional metrics
+                            result.yearLevel?.let { yearLevel ->
+                                val suffix = when(yearLevel) { 
+                                    "1" -> "st"
+                                    "2" -> "nd" 
+                                    "3" -> "rd"
+                                    else -> "th"
+                                }
+                                MetricRow(
+                                    label = "Year Level",
+                                    value = "${yearLevel}${suffix} Year",
+                                    icon = Icons.Default.School,
+                                    valueColor = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            result.deansListStatus?.let { status ->
+                                MetricRow(
+                                    label = "Dean's List Status",
+                                    value = status,
+                                    icon = Icons.Default.EmojiEvents,
+                                    valueColor = when (status.lowercase()) {
+                                        "top spot dean's lister" -> androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                        "regular dean's lister" -> MaterialTheme.colorScheme.primary
+                                        else -> MaterialTheme.colorScheme.onSurface
+                                    },
+                                    badge = when (status.lowercase()) {
+                                        "top spot dean's lister" -> "Top Performer"
+                                        "regular dean's lister" -> "High Achiever"
+                                        else -> null
+                                    }
+                                )
+                            }
+
+                            MetricRow(
+                                label = "Current Units",
+                                value = "${result.currentUnits} units",
+                                icon = Icons.Default.Assignment,
+                                valueColor = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            MetricRow(
+                                label = "Completed Units",
+                                value = "${result.completedUnits} units",
+                                icon = Icons.Default.TaskAlt,
+                                valueColor = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            // Eligible scholarships
+                            if (result.eligibleScholarships.isNotEmpty()) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = androidx.compose.ui.graphics.Color(0xFF4CAF50).copy(alpha = 0.1f)
+                                    ),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium),
+                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.EmojiEvents,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(Dimensions.iconSmall),
+                                                tint = androidx.compose.ui.graphics.Color(0xFF4CAF50)
+                                            )
+                                            Text(
+                                                text = "Eligible Scholarships",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                color = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                        result.eligibleScholarships.forEach { scholarship ->
+                                            Text(
+                                                text = "• $scholarship",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.padding(start = Spacing.medium)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
 
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -302,6 +493,45 @@ fun ScholarshipEligibilityScreen(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
+                                }
+                            }
+
+                            // Additional notes if available
+                            result.notes?.let { notes ->
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    ),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.small)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium),
+                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(Spacing.small)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Description,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(Dimensions.iconSmall),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = "Important Notes",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                        Text(
+                                            text = notes,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
                             }
                         }

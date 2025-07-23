@@ -31,7 +31,9 @@ data class ScholarshipEligibilityRequest(
     val studentId: String,
     val twa: Double, // Term Weighted Average (1.00-5.00, where 1.00 is highest)
     val creditUnits: Int, // Current credit units enrolled
-    val completedUnits: Int // Total completed units towards degree
+    val completedUnits: Int, // Total completed units towards degree
+    val yearLevel: String? = null, // Year level for Dean's List evaluation
+    val deansListStatus: String? = null // Dean's List status: "top_spot", "regular", "none"
 )
 
 // Response Models
@@ -68,10 +70,14 @@ data class PredictiveModelingResponse(
 data class ScholarshipEligibilityResponse(
     val eligibilityStatus: String, // "eligible", "conditional", "not eligible"
     val overallScore: Double,
-    val twaScore: Double,
-    val extracurricularScore: Double,
+    val twa: Double, // The TWA value used in evaluation
+    val yearLevel: String?, // Year level used in evaluation
+    val deansListStatus: String?, // Dean's List status used in evaluation
+    val currentUnits: Int, // Current credit units
+    val completedUnits: Int, // Completed units
     val eligibleScholarships: List<String>,
-    val recommendations: String
+    val recommendations: String,
+    val notes: String? = null // Additional notes from backend
 )
 
 // Chart Request Models

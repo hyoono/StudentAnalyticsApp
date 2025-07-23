@@ -93,8 +93,17 @@ class SoapService {
         require(request.twa >= 1.0 && request.twa <= 5.0) { "TWA must be between 1.0 and 5.0" }
         require(request.creditUnits > 0) { "Credit units must be positive" }
         require(request.completedUnits >= 0) { "Completed units cannot be negative" }
-        require(request.completedUnits <= request.creditUnits) { 
-            "Completed units cannot exceed total credit units" 
+        // Remove the constraint that completed units can't exceed credit units since they represent different things
+        // creditUnits = current enrolled units, completedUnits = total completed towards degree
+        if (!request.yearLevel.isNullOrBlank()) {
+            require(request.yearLevel in listOf("1", "2", "3", "4", "5")) { 
+                "Year level must be between 1 and 5" 
+            }
+        }
+        if (!request.deansListStatus.isNullOrBlank()) {
+            require(request.deansListStatus in listOf("top_spot", "regular", "none")) { 
+                "Dean's List status must be 'top_spot', 'regular', or 'none'" 
+            }
         }
     }
 
@@ -270,19 +279,21 @@ class SoapService {
     }
 
     suspend fun generatePerformanceDistributionChart(request: ChartRequest): ChartResponse {
-        return withContext(Dispatchers.IO) {
-            val soapEnvelope = createPerformanceDistributionChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generatePerformanceDistributionChart")
-            parseChartResponse(response)
-        }
+        return ChartResponse(
+            success = false,
+            chartType = "performance_distribution",
+            imageData = "",
+            error = "Chart generation has been disabled. This system now provides analytics data only."
+        )
     }
 
     suspend fun generateClassAverageChart(request: ChartRequest): ChartResponse {
-        return withContext(Dispatchers.IO) {
-            val soapEnvelope = createClassAverageChartSoapEnvelope(request)
-            val response = sendSoapRequest(soapEnvelope, "generateClassAverageChart")
-            parseChartResponse(response)
-        }
+        return ChartResponse(
+            success = false,
+            chartType = "class_average",
+            imageData = "",
+            error = "Chart generation has been disabled. This system now provides analytics data only."
+        )
     }
 
     /**
@@ -384,7 +395,7 @@ class SoapService {
                         <courseNames>${request.courseNames.joinToString(",")}</courseNames>
                         <studentGrades>${request.studentGrades.joinToString(",")}</studentGrades>
                         <classAverages>${request.classAverages.joinToString(",")}</classAverages>
-                        <creditHours>${request.creditHours.joinToString(",")}</creditHours>
+                        <creditUnits>${request.creditHours.joinToString(",")}</creditUnits>
                         <gradeFormat>${request.gradeFormat}</gradeFormat>
                     </compareCourses>
                 </soap:Body>
@@ -420,6 +431,8 @@ class SoapService {
                         <twa>${request.twa}</twa>
                         <creditUnits>${request.creditUnits}</creditUnits>
                         <completedUnits>${request.completedUnits}</completedUnits>
+                        <yearLevel>${request.yearLevel ?: ""}</yearLevel>
+                        <deansListStatus>${request.deansListStatus ?: "none"}</deansListStatus>
                     </checkScholarshipEligibility>
                 </soap:Body>
             </soap:Envelope>
@@ -472,7 +485,7 @@ class SoapService {
                         <courseNames>${request.courseNames.joinToString(",")}</courseNames>
                         <studentGrades>${request.studentGrades.joinToString(",")}</studentGrades>
                         <classAverages>${request.classAverages.joinToString(",")}</classAverages>
-                        <creditHours>${request.creditHours.joinToString(",")}</creditHours>
+                        <creditUnits>${request.creditHours.joinToString(",")}</creditUnits>
                         <gradeFormat>${request.gradeFormat ?: "raw"}</gradeFormat>
                         <width>$validatedWidth</width>
                         <height>$validatedHeight</height>
@@ -637,10 +650,14 @@ class SoapService {
         return ScholarshipEligibilityResponse(
             eligibilityStatus = json.getString("eligibilityStatus"),
             overallScore = json.getDouble("overallScore"),
-            twaScore = json.getDouble("twaScore"),
-            extracurricularScore = if (json.has("academicLoadScore")) json.getDouble("academicLoadScore") else 0.0, // Map academicLoadScore to extracurricularScore field
+            twa = json.getDouble("twa"), // Backend returns the TWA value used in evaluation
+            yearLevel = if (json.has("yearLevel")) json.getString("yearLevel") else null,
+            deansListStatus = if (json.has("deansListStatus")) json.getString("deansListStatus") else null,
+            currentUnits = json.getInt("currentUnits"),
+            completedUnits = json.getInt("completedUnits"),
             eligibleScholarships = json.getString("eligibleScholarships").split(",").filter { it.isNotEmpty() },
-            recommendations = json.getString("recommendations")
+            recommendations = json.getString("recommendations"),
+            notes = if (json.has("notes")) json.getString("notes") else null
         )
     }
 
