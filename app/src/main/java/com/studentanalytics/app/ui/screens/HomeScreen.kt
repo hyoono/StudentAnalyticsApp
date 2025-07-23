@@ -1,11 +1,12 @@
 package com.studentanalytics.app.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
 import androidx.compose.material.icons.filled.*
@@ -19,8 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.studentanalytics.app.ui.components.EnhancedAnalyticsCard
+import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,132 +32,183 @@ fun HomeScreen(
     onNavigateToPredictiveModeling: () -> Unit,
     onNavigateToScholarshipEligibility: () -> Unit
 ) {
-    var isVisible by remember { mutableStateOf(false) }
+    val scrollState = rememberLazyListState()
+    var contentVisible by remember { mutableStateOf(false) }
     
     LaunchedEffect(Unit) {
-        isVisible = true
+        delay(100)
+        contentVisible = true
     }
     
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(800),
-        label = "homeScreenFadeIn"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.background,
-                        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.3f)
-                    )
-                )
+    OneUILayout(
+        title = "Student Performance Analytics",
+        subtitle = "Comprehensive academic analysis platform",
+        icon = Icons.Default.Analytics,
+        scrollState = scrollState,
+        headerContent = {
+            Spacer(modifier = Modifier.height(Spacing.medium))
+            Text(
+                text = "Analyze grades, compare courses, predict performance, and check scholarship eligibility",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
             )
+        }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .alpha(alpha)
-                .padding(Spacing.medium)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(Spacing.large)
-        ) {
-            // Hero section
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
-            ) {
-                // App icon/logo area
-                Surface(
-                    modifier = Modifier.size(80.dp),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(CornerRadius.large),
-                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                    border = androidx.compose.foundation.BorderStroke(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
-                    )
+        item {
+            Spacer(modifier = Modifier.height(Spacing.large))
+        }
+        
+        // Analytics cards with staggered animation
+        repeat(4) { index ->
+            item {
+                val cardData = when (index) {
+                    0 -> Triple(
+                        "Grade Analysis",
+                        "Analyze your academic performance with detailed grade breakdown and improvement suggestions",
+                        Icons.Default.Assessment
+                    ) to onNavigateToGradeAnalysis
+                    1 -> Triple(
+                        "Course Comparison", 
+                        "Compare performance across different courses to identify strengths and areas for improvement",
+                        Icons.AutoMirrored.Filled.CompareArrows
+                    ) to onNavigateToCourseComparison
+                    2 -> Triple(
+                        "Predictive Performance Modeling",
+                        "Get predictions for future academic performance based on current trends and historical data",
+                        Icons.Default.TrendingUp
+                    ) to onNavigateToPredictiveModeling
+                    else -> Triple(
+                        "Academic Scholarship Eligibility",
+                        "Check your eligibility for academic scholarships based on performance criteria",
+                        Icons.Default.School
+                    ) to onNavigateToScholarshipEligibility
+                }
+                
+                SlideInFromEdge(
+                    visible = contentVisible,
+                    edge = AnimationEdge.Bottom,
+                    delayMillis = index * 100
                 ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    AdvancedCard(
+                        onClick = cardData.second,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium),
+                        elevation = Elevation.medium
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
+                        ) {
+                            // Modern icon container
+                            Surface(
+                                modifier = Modifier.size(64.dp),
+                                shape = RoundedCornerShape(CornerRadius.medium),
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                shadowElevation = Elevation.small
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = cardData.first.third,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            
+                            // Text content
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                            ) {
+                                Text(
+                                    text = cardData.first.first,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = cardData.first.second,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                                )
+                            }
+                            
+                            // Arrow indicator
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            
+            if (index < 3) {
+                item {
+                    Spacer(modifier = Modifier.height(Spacing.medium))
+                }
+            }
+        }
+        
+        item {
+            Spacer(modifier = Modifier.height(Spacing.extraLarge))
+            
+            // Footer section with fade in animation
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Bottom,
+                delayMillis = 500
+            ) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Spacing.medium),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f)
+                    ),
+                    shape = RoundedCornerShape(CornerRadius.large)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Spacing.large),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(Spacing.medium)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Analytics,
+                            imageVector = Icons.Default.School,
                             contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                        )
+                        
+                        Text(
+                            text = "Mapua Malayan Colleges Laguna",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                        
+                        Text(
+                            text = "Empowering students through data-driven insights",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
-                
-                Text(
-                    text = "Student Performance Analytics",
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Text(
-                    text = "Comprehensive analytics platform for academic performance tracking, insights, and predictions",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.medium)
-                )
             }
-
-            // Spacer for visual breathing room
-            Spacer(modifier = Modifier.height(Spacing.medium))
-
-            // Analytics tools section
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
-            ) {
-                Text(
-                    text = "Analytics Tools",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(horizontal = Spacing.small)
-                )
-
-                EnhancedAnalyticsCard(
-                    title = "Grade Analysis",
-                    description = "Comprehensive grade analysis with TWA calculation, performance trends, and improvement suggestions",
-                    icon = Icons.Default.BarChart,
-                    onClick = onNavigateToGradeAnalysis,
-                    badge = "Popular"
-                )
-
-                EnhancedAnalyticsCard(
-                    title = "Course Performance Comparison",
-                    description = "Compare student performance across multiple courses with detailed statistical analysis",
-                    icon = Icons.AutoMirrored.Filled.CompareArrows,
-                    onClick = onNavigateToCourseComparison
-                )
-
-                EnhancedAnalyticsCard(
-                    title = "Predictive Performance Modeling",
-                    description = "Advanced predictive analytics to forecast academic performance and identify at-risk students",
-                    icon = Icons.Default.Psychology,
-                    onClick = onNavigateToPredictiveModeling
-                )
-
-                EnhancedAnalyticsCard(
-                    title = "Academic Scholarship Eligibility",
-                    description = "Evaluate scholarship eligibility based on comprehensive academic performance criteria",
-                    icon = Icons.Default.School,
-                    onClick = onNavigateToScholarshipEligibility
-                )
-            }
-
-            // Bottom spacing
-            Spacer(modifier = Modifier.height(Spacing.large))
         }
     }
 }
