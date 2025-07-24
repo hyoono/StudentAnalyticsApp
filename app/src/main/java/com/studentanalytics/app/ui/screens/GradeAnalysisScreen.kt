@@ -45,8 +45,9 @@ fun GradeAnalysisScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
     
+    // Standardized animation timing
     LaunchedEffect(Unit) {
-        delay(150)
+        delay(MotionTokens.ScreenEntranceDelay.toLong())
         contentVisible = true
     }
 
@@ -54,44 +55,10 @@ fun GradeAnalysisScreen(
         title = "Grade Analysis",
         subtitle = "Analyze academic performance with detailed insights",
         icon = Icons.Default.Assessment,
+        onBackClick = onBack,
         scrollState = scrollState,
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
-            
-            // Enhanced back navigation with better visibility
-            SpringScaleTransition(
-                visible = contentVisible,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .advancedPressAnimation(),
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        tonalElevation = 2.dp
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
         }
     ) {
         item {

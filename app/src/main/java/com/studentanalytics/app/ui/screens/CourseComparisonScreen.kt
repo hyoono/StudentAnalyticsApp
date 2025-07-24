@@ -44,8 +44,9 @@ fun CourseComparisonScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
     
+    // Standardized animation timing
     LaunchedEffect(Unit) {
-        delay(200) // Different timing for visual variety
+        delay(MotionTokens.ScreenEntranceDelay.toLong())
         contentVisible = true
     }
 
@@ -53,45 +54,10 @@ fun CourseComparisonScreen(
         title = "Course Comparison",
         subtitle = "Compare performance across different courses",
         icon = Icons.AutoMirrored.Filled.CompareArrows,
+        onBackClick = onBack,
         scrollState = scrollState,
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
-            
-            // Enhanced back navigation with slide animation
-            SlideInFromEdge(
-                visible = contentVisible,
-                edge = AnimationEdge.Start,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .advancedPressAnimation(),
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        tonalElevation = 2.dp
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
         }
     ) {
         item {

@@ -3,6 +3,8 @@ package com.studentanalytics.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
@@ -76,6 +78,74 @@ fun StudentAnalyticsApp() {
     }
 }
 
+// Material 3 motion system transition specifications
+object NavigationAnimations {
+    private val motionDuration = 400
+    private val motionEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
+    
+    val enterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+        slideInHorizontally(
+            initialOffsetX = { fullWidth -> fullWidth },
+            animationSpec = tween(
+                durationMillis = motionDuration,
+                easing = motionEasing
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = motionDuration / 2,
+                delayMillis = motionDuration / 4,
+                easing = LinearEasing
+            )
+        )
+    }
+    
+    val exitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth -> -fullWidth / 3 },
+            animationSpec = tween(
+                durationMillis = motionDuration,
+                easing = motionEasing
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = motionDuration / 2,
+                easing = LinearEasing
+            )
+        )
+    }
+    
+    val popEnterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+        slideInHorizontally(
+            initialOffsetX = { fullWidth -> -fullWidth / 3 },
+            animationSpec = tween(
+                durationMillis = motionDuration,
+                easing = motionEasing
+            )
+        ) + fadeIn(
+            animationSpec = tween(
+                durationMillis = motionDuration / 2,
+                delayMillis = motionDuration / 4,
+                easing = LinearEasing
+            )
+        )
+    }
+    
+    val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth -> fullWidth },
+            animationSpec = tween(
+                durationMillis = motionDuration,
+                easing = motionEasing
+            )
+        ) + fadeOut(
+            animationSpec = tween(
+                durationMillis = motionDuration / 2,
+                easing = LinearEasing
+            )
+        )
+    }
+}
+
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
@@ -84,7 +154,11 @@ fun NavigationGraph(
     NavHost(
         navController = navController,
         startDestination = "home",
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = NavigationAnimations.enterTransition,
+        exitTransition = NavigationAnimations.exitTransition,
+        popEnterTransition = NavigationAnimations.popEnterTransition,
+        popExitTransition = NavigationAnimations.popExitTransition
     ) {
         composable("home") {
             HomeScreen(

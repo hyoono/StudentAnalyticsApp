@@ -37,6 +37,9 @@ object MotionTokens {
     val DurationLong3 = 550
     val DurationLong4 = 600
     
+    // Standardized screen entry timing
+    val ScreenEntranceDelay = DurationShort3 // 150ms for all screens
+    
     // Easing tokens
     val EmphasizedDecelerate = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1.0f)
     val EmphasizedAccelerate = CubicBezierEasing(0.3f, 0.0f, 0.8f, 0.15f)

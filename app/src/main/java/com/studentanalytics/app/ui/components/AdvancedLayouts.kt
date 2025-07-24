@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,13 +35,14 @@ import com.studentanalytics.app.ui.theme.*
 import kotlin.math.max
 import kotlin.math.min
 
-// Samsung One UI inspired large header layout
+// Samsung One UI inspired large header layout with consistent back button
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OneUILayout(
     title: String,
     subtitle: String? = null,
     icon: ImageVector? = null,
+    onBackClick: (() -> Unit)? = null,
     headerContent: @Composable ColumnScope.() -> Unit = {},
     modifier: Modifier = Modifier,
     scrollState: LazyListState = rememberLazyListState(),
@@ -106,6 +109,43 @@ fun OneUILayout(
                     ),
                 verticalArrangement = Arrangement.Bottom
             ) {
+                // Back button row (fixed at top)
+                onBackClick?.let { backAction ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = if (progress < 0.5f) Spacing.medium else Spacing.extraSmall),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Enhanced back button with consistent animation
+                        Surface(
+                            onClick = backAction,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .advancedPressAnimation(),
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(
+                                alpha = androidx.compose.ui.util.lerp(0.8f, 0.95f, progress)
+                            ),
+                            tonalElevation = if (progress > 0.3f) 4.dp else 2.dp
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+                
                 // Icon and title row
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -42,8 +42,9 @@ fun PredictiveModelingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
     
+    // Standardized animation timing
     LaunchedEffect(Unit) {
-        delay(250) // Different timing for variety
+        delay(MotionTokens.ScreenEntranceDelay.toLong())
         contentVisible = true
     }
 
@@ -51,45 +52,10 @@ fun PredictiveModelingScreen(
         title = "Predictive Performance Modeling",
         subtitle = "Forecast academic performance using statistical analysis",
         icon = Icons.Default.TrendingUp,
+        onBackClick = onBack,
         scrollState = scrollState,
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
-            
-            // Enhanced back navigation with bounce animation
-            StaggeredListAnimation(
-                visible = contentVisible,
-                itemIndex = 0,
-                staggerDelayMs = 50
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .advancedPressAnimation(),
-                        shape = RoundedCornerShape(24.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                        tonalElevation = 2.dp
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
         }
     ) {
         item {
