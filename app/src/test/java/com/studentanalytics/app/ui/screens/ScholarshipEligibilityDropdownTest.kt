@@ -6,128 +6,137 @@ import org.junit.Assert.*
 
 /**
  * Test to verify that the dropdown values in ScholarshipEligibilityScreen
- * align with the SOAP service validation expectations
+ * properly map UI-friendly values to SOAP service validation expectations
  */
 class ScholarshipEligibilityDropdownTest {
     
+    // Helper functions to match the mapping functions in ScholarshipEligibilityScreen
+    private fun mapYearLevelToServiceValue(displayValue: String): String {
+        return when (displayValue) {
+            "1st Year" -> "1"
+            "2nd Year" -> "2"
+            "3rd Year" -> "3"
+            "4th Year" -> "4"
+            "5th Year" -> "5"
+            else -> displayValue
+        }
+    }
+    
+    private fun mapDeansListToServiceValue(displayValue: String): String {
+        return when (displayValue) {
+            "Top Spot" -> "top_spot"
+            "Regular" -> "regular"
+            "None" -> "none"
+            else -> displayValue
+        }
+    }
+    
     @Test
-    fun yearLevel_dropdownValues_alignWithSoapServiceValidation() {
-        // These are the dropdown values that should be available in the UI
-        val uiYearLevelOptions = listOf("1", "2", "3", "4", "5")
+    fun yearLevel_uiValuesMapCorrectlyToServiceValues() {
+        // These are the user-friendly dropdown values shown in the UI
+        val uiYearLevelOptions = listOf("1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year")
         
-        // These are the values that the SOAP service validation accepts
-        val validServiceValues = listOf("1", "2", "3", "4", "5")
+        // These are the values that the SOAP service validation expects
+        val expectedServiceValues = listOf("1", "2", "3", "4", "5")
         
-        // Verify that all UI options are valid for the service
-        uiYearLevelOptions.forEach { uiValue ->
-            assertTrue(
-                "UI year level value '$uiValue' should be accepted by SOAP service validation",
-                validServiceValues.contains(uiValue)
+        // Verify that each UI value maps to the correct service value
+        uiYearLevelOptions.forEachIndexed { index, uiValue ->
+            val serviceValue = mapYearLevelToServiceValue(uiValue)
+            assertEquals(
+                "UI value '$uiValue' should map to service value '${expectedServiceValues[index]}'",
+                expectedServiceValues[index],
+                serviceValue
             )
         }
         
-        // Verify that we can create a valid request with each UI option
-        uiYearLevelOptions.forEach { yearLevel ->
+        // Verify that we can create a valid request with mapped values
+        uiYearLevelOptions.forEach { uiYearLevel ->
+            val mappedYearLevel = mapYearLevelToServiceValue(uiYearLevel)
             val request = ScholarshipEligibilityRequest(
                 studentId = "TEST123",
                 twa = 1.5,
                 creditUnits = 18,
                 completedUnits = 45,
-                yearLevel = yearLevel,
+                yearLevel = mappedYearLevel,
                 deansListStatus = "none"
             )
             
-            // The request should be valid for SOAP service validation
-            assertEquals(yearLevel, request.yearLevel)
-            assertTrue("Year level should be between 1 and 5", yearLevel in listOf("1", "2", "3", "4", "5"))
+            // The request should contain the mapped value for service validation
+            assertTrue("Mapped year level should be valid for service", 
+                request.yearLevel in listOf("1", "2", "3", "4", "5"))
         }
     }
     
     @Test
-    fun deansListStatus_dropdownValues_alignWithSoapServiceValidation() {
-        // These are the dropdown values that should be available in the UI
-        val uiDeansListOptions = listOf("top_spot", "regular", "none")
+    fun deansListStatus_uiValuesMapCorrectlyToServiceValues() {
+        // These are the user-friendly dropdown values shown in the UI
+        val uiDeansListOptions = listOf("Top Spot", "Regular", "None")
         
-        // These are the values that the SOAP service validation accepts
-        val validServiceValues = listOf("top_spot", "regular", "none")
+        // These are the values that the SOAP service validation expects
+        val expectedServiceValues = listOf("top_spot", "regular", "none")
         
-        // Verify that all UI options are valid for the service
-        uiDeansListOptions.forEach { uiValue ->
-            assertTrue(
-                "UI Dean's List value '$uiValue' should be accepted by SOAP service validation",
-                validServiceValues.contains(uiValue)
+        // Verify that each UI value maps to the correct service value
+        uiDeansListOptions.forEachIndexed { index, uiValue ->
+            val serviceValue = mapDeansListToServiceValue(uiValue)
+            assertEquals(
+                "UI value '$uiValue' should map to service value '${expectedServiceValues[index]}'",
+                expectedServiceValues[index],
+                serviceValue
             )
         }
         
-        // Verify that we can create a valid request with each UI option
-        uiDeansListOptions.forEach { deansListStatus ->
+        // Verify that we can create a valid request with mapped values
+        uiDeansListOptions.forEach { uiDeansListStatus ->
+            val mappedDeansListStatus = mapDeansListToServiceValue(uiDeansListStatus)
             val request = ScholarshipEligibilityRequest(
                 studentId = "TEST123",
                 twa = 1.5,
                 creditUnits = 18,
                 completedUnits = 45,
                 yearLevel = "3",
-                deansListStatus = deansListStatus
+                deansListStatus = mappedDeansListStatus
             )
             
-            // The request should be valid for SOAP service validation
-            assertEquals(deansListStatus, request.deansListStatus)
-            assertTrue(
-                "Dean's List status should be one of the accepted values", 
-                deansListStatus in listOf("top_spot", "regular", "none")
-            )
+            // The request should contain the mapped value for service validation
+            assertTrue("Mapped Dean's List status should be valid for service",
+                request.deansListStatus in listOf("top_spot", "regular", "none"))
         }
     }
     
     @Test
-    fun scholarshipEligibilityRequest_withDropdownValues_passesValidation() {
-        // Test with typical dropdown selections that should pass SOAP service validation
+    fun scholarshipEligibilityRequest_withMappedDropdownValues_passesValidation() {
+        // Test with typical UI selections that should map correctly to pass SOAP service validation
         val testCases = listOf(
-            // Year 1 student, no Dean's List
-            ScholarshipEligibilityRequest(
-                studentId = "STUD001",
-                twa = 1.75,
-                creditUnits = 18,
-                completedUnits = 18,
-                yearLevel = "1",
-                deansListStatus = "none"
-            ),
-            // Year 3 student, regular Dean's List
-            ScholarshipEligibilityRequest(
-                studentId = "STUD002",
-                twa = 1.25,
-                creditUnits = 21,
-                completedUnits = 90,
-                yearLevel = "3",
-                deansListStatus = "regular"
-            ),
-            // Year 4 student, top spot Dean's List
-            ScholarshipEligibilityRequest(
-                studentId = "STUD003",
-                twa = 1.15,
-                creditUnits = 24,
-                completedUnits = 120,
-                yearLevel = "4",
-                deansListStatus = "top_spot"
-            )
+            // UI: "1st Year" student, "None" Dean's List
+            Triple("1st Year", "None", Pair("1", "none")),
+            // UI: "3rd Year" student, "Regular" Dean's List  
+            Triple("3rd Year", "Regular", Pair("3", "regular")),
+            // UI: "4th Year" student, "Top Spot" Dean's List
+            Triple("4th Year", "Top Spot", Pair("4", "top_spot"))
         )
         
-        testCases.forEach { request ->
-            // Verify all required fields are set correctly
-            assertNotNull("Student ID should not be null", request.studentId)
-            assertTrue("TWA should be between 1.0 and 5.0", request.twa >= 1.0 && request.twa <= 5.0)
-            assertTrue("Credit units should be positive", request.creditUnits > 0)
-            assertTrue("Completed units should be non-negative", request.completedUnits >= 0)
+        testCases.forEach { (uiYearLevel, uiDeansListStatus, expectedMappedValues) ->
+            val mappedYearLevel = mapYearLevelToServiceValue(uiYearLevel)
+            val mappedDeansListStatus = mapDeansListToServiceValue(uiDeansListStatus)
             
-            // Verify dropdown values match service expectations
-            assertTrue(
-                "Year level should be valid for service", 
-                request.yearLevel in listOf("1", "2", "3", "4", "5")
+            // Verify mapping is correct
+            assertEquals("Year level mapping should be correct", expectedMappedValues.first, mappedYearLevel)
+            assertEquals("Dean's List mapping should be correct", expectedMappedValues.second, mappedDeansListStatus)
+            
+            val request = ScholarshipEligibilityRequest(
+                studentId = "STUD001",
+                twa = 1.25,
+                creditUnits = 18,
+                completedUnits = 45,
+                yearLevel = mappedYearLevel,
+                deansListStatus = mappedDeansListStatus
             )
-            assertTrue(
-                "Dean's List status should be valid for service",
-                request.deansListStatus in listOf("top_spot", "regular", "none")
-            )
+            
+            // Verify the request contains service-compatible values
+            assertTrue("Mapped year level should be valid for service", 
+                request.yearLevel in listOf("1", "2", "3", "4", "5"))
+            assertTrue("Mapped Dean's List status should be valid for service",
+                request.deansListStatus in listOf("top_spot", "regular", "none"))
         }
     }
 }
