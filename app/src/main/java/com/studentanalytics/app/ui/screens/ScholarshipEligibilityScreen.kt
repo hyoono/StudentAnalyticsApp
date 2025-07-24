@@ -43,6 +43,27 @@ fun ScholarshipEligibilityScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
     
+    // Helper functions to map UI values to SOAP service values
+    fun mapYearLevelToServiceValue(displayValue: String): String {
+        return when (displayValue) {
+            "1st Year" -> "1"
+            "2nd Year" -> "2"
+            "3rd Year" -> "3"
+            "4th Year" -> "4"
+            "5th Year" -> "5"
+            else -> displayValue
+        }
+    }
+    
+    fun mapDeansListToServiceValue(displayValue: String): String {
+        return when (displayValue) {
+            "Top Spot" -> "top_spot"
+            "Regular" -> "regular"
+            "None" -> "none"
+            else -> displayValue
+        }
+    }
+    
     // Standardized animation timing
     LaunchedEffect(Unit) {
         delay(MotionTokens.ScreenEntranceDelay.toLong())
@@ -197,7 +218,7 @@ fun ScholarshipEligibilityScreen(
                         Spacer(modifier = Modifier.height(Spacing.small))
                         
                         var deansListExpanded by remember { mutableStateOf(false) }
-                        val deansListOptions = listOf("Yes", "No")
+                        val deansListOptions = listOf("Top Spot", "Regular", "None")
                         
                         ExposedDropdownMenuBox(
                             expanded = deansListExpanded,
@@ -254,8 +275,8 @@ fun ScholarshipEligibilityScreen(
                             twa = twa.toDoubleOrNull() ?: 0.0,
                             creditUnits = creditUnits.toIntOrNull() ?: 0,
                             completedUnits = completedUnits.toIntOrNull() ?: 0,
-                            yearLevel = yearLevel,
-                            deansListStatus = deansListStatus
+                            yearLevel = mapYearLevelToServiceValue(yearLevel),
+                            deansListStatus = mapDeansListToServiceValue(deansListStatus)
                         )
                         viewModel.checkEligibility(request)
                     },
