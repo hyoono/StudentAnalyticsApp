@@ -69,22 +69,16 @@ class IntegratedChartGenerationTest {
     }
     
     @Test
-    fun scholarshipEligibilityUiState_includesChartFields() {
-        // Test that ScholarshipEligibilityUiState includes chart-related fields
+    fun scholarshipEligibilityUiState_includesRequiredFields() {
+        // Test that ScholarshipEligibilityUiState includes required fields (chart functionality removed)
         val uiState = ScholarshipEligibilityUiState(
             isLoading = false,
             result = null,
-            error = null,
-            chartResponse = null,
-            chartError = null,
-            isLoadingChart = true
+            error = null
         )
         
         assertFalse(uiState.isLoading)
         assertNull(uiState.result)
         assertNull(uiState.error)
-        assertNull(uiState.chartResponse)
-        assertNull(uiState.chartError)
-        assertTrue(uiState.isLoadingChart)
     }
 }
