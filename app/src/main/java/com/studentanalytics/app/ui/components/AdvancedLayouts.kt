@@ -2,6 +2,7 @@ package com.studentanalytics.app.ui.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -117,17 +118,21 @@ fun OneUILayout(
                             .padding(bottom = if (progress < 0.5f) Spacing.medium else Spacing.extraSmall),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Enhanced back button with consistent animation
+                        // Simplified back button with clean design
                         Surface(
                             onClick = backAction,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .advancedPressAnimation(),
-                            shape = RoundedCornerShape(24.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(
-                                alpha = androidx.compose.ui.util.lerp(0.8f, 0.95f, progress)
+                            modifier = Modifier.size(40.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(
+                                alpha = androidx.compose.ui.util.lerp(0.9f, 1f, progress)
                             ),
-                            tonalElevation = if (progress > 0.3f) 4.dp else 2.dp
+                            tonalElevation = lerp(1.dp, 2.dp, progress),
+                            border = BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(
+                                    alpha = androidx.compose.ui.util.lerp(0.1f, 0.2f, progress)
+                                )
+                            )
                         ) {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
@@ -136,8 +141,8 @@ fun OneUILayout(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(24.dp)
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
                         }

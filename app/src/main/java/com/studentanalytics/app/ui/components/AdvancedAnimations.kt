@@ -93,7 +93,7 @@ fun Modifier.advancedPressAnimation(): Modifier {
     )
     
     val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else 6.dp,
+        targetValue = if (isPressed) 1.dp else 2.dp,
         animationSpec = tween(
             durationMillis = MotionTokens.DurationShort3,
             easing = MotionTokens.Emphasized
