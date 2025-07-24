@@ -9,7 +9,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class SoapService {
-    private val baseUrl = "http://10.0.2.2/student_analytics/soap_server.php"
+    private val baseUrl = "https://studentanalytics.azurewebsites.net/soap_server.php"
     
     /**
      * Validates and corrects chart dimensions to ensure they fall within backend constraints
