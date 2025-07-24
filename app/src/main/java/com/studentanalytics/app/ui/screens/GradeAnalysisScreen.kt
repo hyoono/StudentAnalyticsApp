@@ -46,7 +46,7 @@ fun GradeAnalysisScreen(
     val scrollState = rememberLazyListState()
     
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(150)
         contentVisible = true
     }
 
@@ -58,25 +58,39 @@ fun GradeAnalysisScreen(
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
             
-            // Back navigation in header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Enhanced back navigation with better visibility
+            SpringScaleTransition(
+                visible = contentVisible,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
+                    Surface(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .advancedPressAnimation(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        tonalElevation = 2.dp
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
                 }
-                
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     ) {
@@ -84,12 +98,12 @@ fun GradeAnalysisScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
         
-        // Input form with staggered animations
+        // Input form with advanced choreographed animations
         item {
-            SlideInFromEdge(
+            StaggeredListAnimation(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 0
+                itemIndex = 0,
+                staggerDelayMs = 100
             ) {
                 AdvancedCard(
                     onClick = { /* No action for form card */ },
@@ -174,12 +188,12 @@ fun GradeAnalysisScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
         
-        // Action button with animation
+        // Action button with enhanced spring animation
         item {
-            SlideInFromEdge(
+            StaggeredListAnimation(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 200
+                itemIndex = 1,
+                staggerDelayMs = 150
             ) {
                 ModernButton(
                     text = "Analyze Grades",
@@ -209,12 +223,13 @@ fun GradeAnalysisScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
 
-        // Error display with animation
+        // Error display with dramatic entrance animation
         if (uiState.error != null) {
             item {
-                SlideInFromEdge(
+                SpringScaleTransition(
                     visible = true,
-                    edge = AnimationEdge.Top
+                    initialScale = 0.5f,
+                    targetScale = 1.0f
                 ) {
                     ErrorCard(
                         message = uiState.error!!,
@@ -229,7 +244,7 @@ fun GradeAnalysisScreen(
             }
         }
 
-        // Loading state with advanced animation
+        // Loading state with advanced container transform
         if (uiState.isLoading) {
             item {
                 ContainerTransform(visible = true) {
@@ -274,222 +289,252 @@ fun GradeAnalysisScreen(
             }
         }
 
-        // Results display with sophisticated animations
+        // Results display with sophisticated orchestrated animations
         if (uiState.result != null) {
             item {
-                ContainerTransform(visible = true) {
+                StaggeredListAnimation(
+                    visible = true,
+                    itemIndex = 0,
+                    staggerDelayMs = 100
+                ) {
                     Column(
                         modifier = Modifier.padding(horizontal = Spacing.medium),
                         verticalArrangement = Arrangement.spacedBy(Spacing.medium)
                     ) {
-                        // Results header card
-                        AdvancedCard(
-                            onClick = { /* No action for results header */ },
-                            elevation = Elevation.large
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
+                        // Results header card with morphing animation
+                        ContainerTransform(visible = true) {
+                            AdvancedCard(
+                                onClick = { /* No action for results header */ },
+                                elevation = Elevation.large
                             ) {
-                                Surface(
-                                    modifier = Modifier.size(48.dp),
-                                    shape = RoundedCornerShape(CornerRadius.medium),
-                                    color = MaterialTheme.colorScheme.primaryContainer
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
                                 ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
+                                    Surface(
+                                        modifier = Modifier.size(48.dp),
+                                        shape = RoundedCornerShape(CornerRadius.medium),
+                                        color = MaterialTheme.colorScheme.primaryContainer
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Assessment,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(24.dp),
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Assessment,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                            )
+                                        }
+                                    }
+                                    
+                                    Column {
+                                        Text(
+                                            text = "Analysis Results",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "Your academic performance breakdown",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
-                                }
-                                
-                                Column {
-                                    Text(
-                                        text = "Analysis Results",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Your academic performance breakdown",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
                                 }
                             }
                         }
                         
-                        // Metrics cards with staggered animation
+                        // Metrics cards with choreographed staggered animation
                         val result = uiState.result!!
                         
-                        // Weighted Average
-                        AdvancedCard(
-                            onClick = { /* No action */ },
-                            elevation = Elevation.medium
+                        // Weighted Average with pulse effect
+                        StaggeredListAnimation(
+                            visible = true,
+                            itemIndex = 1,
+                            staggerDelayMs = 150
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            AdvancedCard(
+                                onClick = { /* No action */ },
+                                elevation = Elevation.medium
                             ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Weighted Average",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        text = String.format(Locale.US, "%.2f", result.weightedAverage),
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        color = when {
-                                            result.weightedAverage >= 90 -> Color(0xFF4CAF50)
-                                            result.weightedAverage >= 75 -> MaterialTheme.colorScheme.primary
-                                            else -> MaterialTheme.colorScheme.error
-                                        },
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                
-                                AnimatedStatusChip(
-                                    text = when {
-                                        result.weightedAverage >= 90 -> "Excellent"
-                                        result.weightedAverage >= 75 -> "Good"
-                                        else -> "Needs Improvement"
-                                    },
-                                    isPositive = result.weightedAverage >= 75
-                                )
-                            }
-                            
-                            AdvancedProgressIndicator(
-                                progress = (result.weightedAverage / 100.0).coerceIn(0.0, 1.0).toFloat(),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        
-                        // Current TWA
-                        AdvancedCard(
-                            onClick = { /* No action */ },
-                            elevation = Elevation.medium
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = "Current TWA",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        text = String.format(Locale.US, "%.2f", result.currentTwa),
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        color = when {
-                                            result.currentTwa <= 2.0 -> Color(0xFF4CAF50)
-                                            result.currentTwa <= 3.0 -> MaterialTheme.colorScheme.primary
-                                            else -> MaterialTheme.colorScheme.error
-                                        },
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.TrendingUp,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(32.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        
-                        // Additional metrics
-                        AdvancedCard(
-                            onClick = { /* No action */ },
-                            elevation = Elevation.small
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(Spacing.medium)
-                            ) {
-                                Text(
-                                    text = "Additional Metrics",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                
-                                MetricRow(
-                                    label = "Grade Distribution",
-                                    value = result.gradeDistribution,
-                                    icon = Icons.Default.PieChart
-                                )
-
-                                MetricRow(
-                                    label = "Performance Trend",
-                                    value = result.performanceTrend,
-                                    icon = when (result.performanceTrend.lowercase()) {
-                                        "improving" -> Icons.AutoMirrored.Filled.TrendingUp
-                                        "declining" -> Icons.AutoMirrored.Filled.TrendingDown
-                                        else -> Icons.AutoMirrored.Filled.TrendingFlat
-                                    },
-                                    valueColor = when (result.performanceTrend.lowercase()) {
-                                        "improving" -> Color(0xFF4CAF50)
-                                        "declining" -> MaterialTheme.colorScheme.error
-                                        else -> MaterialTheme.colorScheme.onSurface
-                                    }
-                                )
-                            }
-                        }
-                        
-                        // Improvement suggestions
-                        AdvancedCard(
-                            onClick = { /* No action */ },
-                            elevation = Elevation.medium
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.Top,
-                                horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
-                            ) {
-                                Surface(
-                                    modifier = Modifier.size(40.dp),
-                                    shape = RoundedCornerShape(CornerRadius.small),
-                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Lightbulb,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(20.dp),
-                                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Weighted Average",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = String.format(Locale.US, "%.2f", result.weightedAverage),
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            color = when {
+                                                result.weightedAverage >= 90 -> Color(0xFF4CAF50)
+                                                result.weightedAverage >= 75 -> MaterialTheme.colorScheme.primary
+                                                else -> MaterialTheme.colorScheme.error
+                                            },
+                                            fontWeight = FontWeight.Bold
                                         )
                                     }
+                                    
+                                    AnimatedStatusChip(
+                                        text = when {
+                                            result.weightedAverage >= 90 -> "Excellent"
+                                            result.weightedAverage >= 75 -> "Good"
+                                            else -> "Needs Improvement"
+                                        },
+                                        isPositive = result.weightedAverage >= 75
+                                    )
                                 }
                                 
-                                Column(modifier = Modifier.weight(1f)) {
+                                AdvancedProgressIndicator(
+                                    progress = (result.weightedAverage / 100.0).coerceIn(0.0, 1.0).toFloat(),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                        
+                        // Current TWA with bounce animation
+                        StaggeredListAnimation(
+                            visible = true,
+                            itemIndex = 2,
+                            staggerDelayMs = 200
+                        ) {
+                            AdvancedCard(
+                                onClick = { /* No action */ },
+                                elevation = Elevation.medium
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Current TWA",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = String.format(Locale.US, "%.2f", result.currentTwa),
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            color = when {
+                                                result.currentTwa <= 2.0 -> Color(0xFF4CAF50)
+                                                result.currentTwa <= 3.0 -> MaterialTheme.colorScheme.primary
+                                                else -> MaterialTheme.colorScheme.error
+                                            },
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.TrendingUp,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Additional metrics with slide-in effect
+                        StaggeredListAnimation(
+                            visible = true,
+                            itemIndex = 3,
+                            staggerDelayMs = 250
+                        ) {
+                            AdvancedCard(
+                                onClick = { /* No action */ },
+                                elevation = Elevation.small
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                                ) {
                                     Text(
-                                        text = "Improvement Suggestions",
+                                        text = "Additional Metrics",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         fontWeight = FontWeight.SemiBold
                                     )
-                                    Spacer(modifier = Modifier.height(Spacing.small))
-                                    Text(
-                                        text = result.suggestions,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                                    
+                                    MetricRow(
+                                        label = "Grade Distribution",
+                                        value = result.gradeDistribution,
+                                        icon = Icons.Default.PieChart
                                     )
+
+                                    MetricRow(
+                                        label = "Performance Trend",
+                                        value = result.performanceTrend,
+                                        icon = when (result.performanceTrend.lowercase()) {
+                                            "improving" -> Icons.AutoMirrored.Filled.TrendingUp
+                                            "declining" -> Icons.AutoMirrored.Filled.TrendingDown
+                                            else -> Icons.AutoMirrored.Filled.TrendingFlat
+                                        },
+                                        valueColor = when (result.performanceTrend.lowercase()) {
+                                            "improving" -> Color(0xFF4CAF50)
+                                            "declining" -> MaterialTheme.colorScheme.error
+                                            else -> MaterialTheme.colorScheme.onSurface
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // Improvement suggestions with fade-in scale
+                        StaggeredListAnimation(
+                            visible = true,
+                            itemIndex = 4,
+                            staggerDelayMs = 300
+                        ) {
+                            AdvancedCard(
+                                onClick = { /* No action */ },
+                                elevation = Elevation.medium
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.Top,
+                                    horizontalArrangement = Arrangement.spacedBy(Spacing.medium)
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.size(40.dp),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.secondaryContainer
+                                    ) {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Lightbulb,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                            )
+                                        }
+                                    }
+                                    
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = "Improvement Suggestions",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Spacer(modifier = Modifier.height(Spacing.small))
+                                        Text(
+                                            text = result.suggestions,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+                                        )
+                                    }
                                 }
                             }
                         }

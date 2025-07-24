@@ -43,7 +43,7 @@ fun PredictiveModelingScreen(
     val scrollState = rememberLazyListState()
     
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(250) // Different timing for variety
         contentVisible = true
     }
 
@@ -55,25 +55,40 @@ fun PredictiveModelingScreen(
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
             
-            // Back navigation in header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Enhanced back navigation with bounce animation
+            StaggeredListAnimation(
+                visible = contentVisible,
+                itemIndex = 0,
+                staggerDelayMs = 50
             ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
+                    Surface(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .advancedPressAnimation(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        tonalElevation = 2.dp
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
                 }
-                
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     ) {
@@ -81,12 +96,12 @@ fun PredictiveModelingScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
         
-        // Input form with staggered animations
+        // Input form with wave animation entrance
         item {
             SlideInFromEdge(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 0
+                edge = AnimationEdge.End,
+                delayMillis = 100
             ) {
                 AdvancedCard(
                     onClick = { /* No action for form card */ },
@@ -180,12 +195,12 @@ fun PredictiveModelingScreen(
             }
         }
         
-        // Action button with animation
+        // Action button with elastic bounce
         item {
-            SlideInFromEdge(
+            SpringScaleTransition(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 200
+                initialScale = 0.8f,
+                modifier = Modifier.padding(top = Spacing.medium)
             ) {
                 ModernButton(
                     text = "Generate Prediction",
@@ -210,13 +225,12 @@ fun PredictiveModelingScreen(
             }
         }
 
-        // Error display with animation
+        // Error display with slide from top
         if (uiState.error != null) {
             item {
                 SlideInFromEdge(
                     visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 100
+                    edge = AnimationEdge.Top
                 ) {
                     ErrorCard(
                         message = uiState.error!!,
@@ -229,13 +243,11 @@ fun PredictiveModelingScreen(
             }
         }
 
-        // Results with enhanced animations
+        // Results with morphing reveal animation
         uiState.result?.let { result ->
             item {
-                SlideInFromEdge(
-                    visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 300
+                ContainerTransform(
+                    visible = true
                 ) {
                     ResultsCard(
                         title = "Prediction Results",
@@ -244,93 +256,152 @@ fun PredictiveModelingScreen(
                             .fillMaxWidth()
                             .padding(horizontal = Spacing.medium)
                     ) {
-                        // Prediction metrics
-                        MetricRow(
-                            label = "Predicted Next Grade",
-                            value = String.format(Locale.getDefault(), "%.2f", result.predictedGrade),
-                            icon = Icons.Default.Star,
-                            valueColor = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        MetricRow(
-                            label = "Risk Level",
-                            value = result.riskLevel,
-                            icon = when (result.riskLevel.lowercase()) {
-                                "low" -> Icons.Default.CheckCircle
-                                "medium" -> Icons.Default.Warning
-                                "high" -> Icons.Default.Error
-                                else -> Icons.Default.Info
-                            },
-                            valueColor = when (result.riskLevel.lowercase()) {
-                                "low" -> MaterialTheme.colorScheme.primary
-                                "medium" -> MaterialTheme.colorScheme.tertiary
-                                "high" -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.secondary
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                        ) {
+                            // Key prediction metrics with sequential reveal
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 0,
+                                staggerDelayMs = 100
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.medium),
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium)
+                                    ) {
+                                        MetricRow(
+                                            label = "Predicted Next Grade",
+                                            value = String.format(Locale.getDefault(), "%.2f", result.predictedGrade),
+                                            icon = Icons.Default.Star,
+                                            valueColor = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
                             }
-                        )
-                        
-                        MetricRow(
-                            label = "Confidence Score",
-                            value = "${String.format(Locale.getDefault(), "%.1f", result.confidenceScore)}%",
-                            icon = Icons.Default.Psychology,
-                            valueColor = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        if (result.trendAnalysis.isNotEmpty()) {
-                            Text(
-                                text = "Trend Analysis",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
                             
-                            Spacer(modifier = Modifier.height(Spacing.small))
+                            // Risk assessment with attention-grabbing animation
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 1,
+                                staggerDelayMs = 150
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.medium),
+                                    color = when (result.riskLevel.lowercase()) {
+                                        "high" -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
+                                        "medium" -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+                                        else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                                    }
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium)
+                                    ) {
+                                        MetricRow(
+                                            label = "Risk Level",
+                                            value = result.riskLevel,
+                                            icon = when (result.riskLevel.lowercase()) {
+                                                "low" -> Icons.Default.CheckCircle
+                                                "medium" -> Icons.Default.Warning
+                                                "high" -> Icons.Default.Error
+                                                else -> Icons.Default.Info
+                                            },
+                                            valueColor = when (result.riskLevel.lowercase()) {
+                                                "low" -> MaterialTheme.colorScheme.primary
+                                                "medium" -> MaterialTheme.colorScheme.tertiary
+                                                "high" -> MaterialTheme.colorScheme.error
+                                                else -> MaterialTheme.colorScheme.secondary
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                             
-                            Text(
-                                text = result.trendAnalysis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            // Confidence score with pulse effect
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 2,
+                                staggerDelayMs = 200
+                            ) {
+                                MetricRow(
+                                    label = "Confidence Score",
+                                    value = "${String.format(Locale.getDefault(), "%.1f", result.confidenceScore)}%",
+                                    icon = Icons.Default.Psychology,
+                                    valueColor = MaterialTheme.colorScheme.secondary
+                                )
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        if (result.trendAnalysis.isNotEmpty()) {
-                            Text(
-                                text = "Trend Analysis",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            // Trend analysis with sophisticated reveal
+                            if (result.trendAnalysis.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 3,
+                                    staggerDelayMs = 250
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Trend Analysis",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            Text(
+                                                text = result.trendAnalysis,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            Text(
-                                text = result.trendAnalysis,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        if (result.recommendations.isNotEmpty()) {
-                            Text(
-                                text = "Recommendations",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            Text(
-                                text = result.recommendations,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            // Recommendations with final emphasis
+                            if (result.recommendations.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 4,
+                                    staggerDelayMs = 300
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Recommendations",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.tertiary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            Text(
+                                                text = result.recommendations,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

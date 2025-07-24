@@ -44,7 +44,7 @@ fun ScholarshipEligibilityScreen(
     val scrollState = rememberLazyListState()
     
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(300) // Latest entrance for dramatic effect
         contentVisible = true
     }
 
@@ -56,25 +56,40 @@ fun ScholarshipEligibilityScreen(
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
             
-            // Back navigation in header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Enhanced back navigation with scale entrance
+            SpringScaleTransition(
+                visible = contentVisible,
+                initialScale = 0.6f,
+                targetScale = 1.0f
             ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
+                    Surface(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .advancedPressAnimation(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        tonalElevation = 2.dp
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
                 }
-                
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     ) {
@@ -82,12 +97,12 @@ fun ScholarshipEligibilityScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
         
-        // Input form with staggered animations
+        // Input form with cascading wave animation
         item {
             SlideInFromEdge(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 0
+                edge = AnimationEdge.Top,
+                delayMillis = 150
             ) {
                 AdvancedCard(
                     onClick = { /* No action for form card */ },
@@ -259,12 +274,11 @@ fun ScholarshipEligibilityScreen(
             }
         }
         
-        // Action button with animation
+        // Action button with dramatic entrance
         item {
-            SlideInFromEdge(
+            ContainerTransform(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 200
+                modifier = Modifier.padding(top = Spacing.medium)
             ) {
                 ModernButton(
                     text = "Check Eligibility",
@@ -289,13 +303,13 @@ fun ScholarshipEligibilityScreen(
             }
         }
 
-        // Error display with animation
+        // Error display with elastic bounce
         if (uiState.error != null) {
             item {
-                SlideInFromEdge(
+                SpringScaleTransition(
                     visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 100
+                    initialScale = 0.5f,
+                    targetScale = 1.0f
                 ) {
                     ErrorCard(
                         message = uiState.error!!,
@@ -308,13 +322,11 @@ fun ScholarshipEligibilityScreen(
             }
         }
 
-        // Results with enhanced animations
+        // Results with comprehensive choreographed animations
         uiState.result?.let { result ->
             item {
-                SlideInFromEdge(
-                    visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 300
+                ContainerTransform(
+                    visible = true
                 ) {
                     ResultsCard(
                         title = "Eligibility Results",
@@ -323,130 +335,220 @@ fun ScholarshipEligibilityScreen(
                             .fillMaxWidth()
                             .padding(horizontal = Spacing.medium)
                     ) {
-                        // Eligibility status with appropriate styling
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(Spacing.medium),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(Spacing.medium)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.School,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Eligibility Status",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                
-                                Text(
-                                    text = result.eligibilityStatus,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Overall score metric
-                        MetricRow(
-                            label = "Overall Score",
-                            value = String.format(Locale.getDefault(), "%.2f", result.overallScore),
-                            icon = Icons.Default.Calculate,
-                            valueColor = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        // TWA metric
-                        MetricRow(
-                            label = "TWA",
-                            value = String.format(Locale.getDefault(), "%.2f", result.twa),
-                            icon = Icons.Default.Grade,
-                            valueColor = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        // Current units
-                        MetricRow(
-                            label = "Current Units",
-                            value = "${result.currentUnits} units",
-                            icon = Icons.Default.Assignment,
-                            valueColor = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        // Completed units
-                        MetricRow(
-                            label = "Completed Units",
-                            value = "${result.completedUnits} units",
-                            icon = Icons.Default.TaskAlt,
-                            valueColor = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Eligible scholarships
-                        if (result.eligibleScholarships.isNotEmpty()) {
-                            Text(
-                                text = "Eligible Scholarships",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            result.eligibleScholarships.forEach { scholarship ->
-                                Text(
-                                    text = "• $scholarship",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = Spacing.medium)
-                                )
+                            // Eligibility status with prominent display
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 0,
+                                staggerDelayMs = 100
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.medium),
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(Spacing.large),
+                                        horizontalArrangement = Arrangement.spacedBy(Spacing.medium),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.School,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                        
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = "Eligibility Status",
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            
+                                            Text(
+                                                text = result.eligibilityStatus,
+                                                style = MaterialTheme.typography.headlineSmall,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                }
                             }
                             
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        // Recommendations
-                        if (result.recommendations.isNotEmpty()) {
-                            Text(
-                                text = "Recommendations",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            // Performance metrics with sequential reveal
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 1,
+                                staggerDelayMs = 150
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                ) {
+                                    MetricRow(
+                                        label = "Overall Score",
+                                        value = String.format(Locale.getDefault(), "%.2f", result.overallScore),
+                                        icon = Icons.Default.Calculate,
+                                        valueColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                    
+                                    MetricRow(
+                                        label = "TWA",
+                                        value = String.format(Locale.getDefault(), "%.2f", result.twa),
+                                        icon = Icons.Default.Grade,
+                                        valueColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.small))
+                            // Academic load information
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 2,
+                                staggerDelayMs = 200
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.small),
+                                    color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium),
+                                        verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                    ) {
+                                        Text(
+                                            text = "Academic Load",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                        
+                                        MetricRow(
+                                            label = "Current Units",
+                                            value = "${result.currentUnits} units",
+                                            icon = Icons.Default.Assignment,
+                                            valueColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        
+                                        MetricRow(
+                                            label = "Completed Units",
+                                            value = "${result.completedUnits} units",
+                                            icon = Icons.Default.TaskAlt,
+                                            valueColor = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
                             
-                            Text(
-                                text = result.recommendations,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            // Eligible scholarships with emphasis
+                            if (result.eligibleScholarships.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 3,
+                                    staggerDelayMs = 250
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.medium),
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Eligible Scholarships",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            result.eligibleScholarships.forEach { scholarship ->
+                                                Text(
+                                                    text = "• $scholarship",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    modifier = Modifier.padding(start = Spacing.medium)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        // Notes if available
-                        result.notes?.let { notes ->
-                            Text(
-                                text = "Additional Notes",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            // Recommendations with final emphasis
+                            if (result.recommendations.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 4,
+                                    staggerDelayMs = 300
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Recommendations",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.tertiary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            Text(
+                                                text = result.recommendations,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            Text(
-                                text = notes,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            // Additional notes if available
+                            result.notes?.let { notes ->
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 5,
+                                    staggerDelayMs = 350
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Additional Notes",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            Text(
+                                                text = notes,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

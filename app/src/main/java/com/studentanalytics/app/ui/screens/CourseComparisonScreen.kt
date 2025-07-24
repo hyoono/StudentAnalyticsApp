@@ -45,7 +45,7 @@ fun CourseComparisonScreen(
     val scrollState = rememberLazyListState()
     
     LaunchedEffect(Unit) {
-        delay(100)
+        delay(200) // Different timing for visual variety
         contentVisible = true
     }
 
@@ -57,25 +57,40 @@ fun CourseComparisonScreen(
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.small))
             
-            // Back navigation in header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            // Enhanced back navigation with slide animation
+            SlideInFromEdge(
+                visible = contentVisible,
+                edge = AnimationEdge.Start,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
+                    Surface(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .advancedPressAnimation(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        tonalElevation = 2.dp
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
                 }
-                
-                Spacer(modifier = Modifier.weight(1f))
             }
         }
     ) {
@@ -83,12 +98,10 @@ fun CourseComparisonScreen(
             Spacer(modifier = Modifier.height(Spacing.medium))
         }
         
-        // Input form with staggered animations
+        // Input form with morphing entrance animation
         item {
-            SlideInFromEdge(
-                visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 0
+            ContainerTransform(
+                visible = contentVisible
             ) {
                 AdvancedCard(
                     onClick = { /* No action for form card */ },
@@ -173,12 +186,11 @@ fun CourseComparisonScreen(
             }
         }
         
-        // Action button with animation
+        // Action button with enhanced spring animation
         item {
-            SlideInFromEdge(
+            SpringScaleTransition(
                 visible = contentVisible,
-                edge = AnimationEdge.Bottom,
-                delayMillis = 200
+                modifier = Modifier.padding(top = Spacing.medium)
             ) {
                 ModernButton(
                     text = "Compare Performance",
@@ -203,13 +215,13 @@ fun CourseComparisonScreen(
             }
         }
 
-        // Error display with animation
+        // Error display with dramatic scale entrance
         if (uiState.error != null) {
             item {
-                SlideInFromEdge(
+                SpringScaleTransition(
                     visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 100
+                    initialScale = 0.7f,
+                    targetScale = 1.0f
                 ) {
                     ErrorCard(
                         message = uiState.error!!,
@@ -222,13 +234,11 @@ fun CourseComparisonScreen(
             }
         }
 
-        // Results with enhanced animations
+        // Results with sophisticated choreographed animations
         uiState.result?.let { result ->
             item {
-                SlideInFromEdge(
-                    visible = true,
-                    edge = AnimationEdge.Bottom,
-                    delayMillis = 300
+                ContainerTransform(
+                    visible = true
                 ) {
                     ResultsCard(
                         title = "Comparison Results",
@@ -237,140 +247,191 @@ fun CourseComparisonScreen(
                             .fillMaxWidth()
                             .padding(horizontal = Spacing.medium)
                     ) {
-                        // Best performing course
-                        Text(
-                            text = "Best Performing Course",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.small))
-                        
-                        Text(
-                            text = "${result.bestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.bestGrade)}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Weakest performing course
-                        Text(
-                            text = "Needs Improvement",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.small))
-                        
-                        Text(
-                            text = "${result.weakestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.weakestGrade)}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Overall TWA
-                        Text(
-                            text = "Overall TWA",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.small))
-                        
-                        Text(
-                            text = String.format(Locale.getDefault(), "%.2f", result.overallTwa),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Performance variance
-                        Text(
-                            text = "Performance Variance",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.small))
-                        
-                        Text(
-                            text = String.format(Locale.getDefault(), "%.2f", result.performanceVariance),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        
-                        Spacer(modifier = Modifier.height(Spacing.medium))
-                        
-                        // Above average courses
-                        if (result.coursesAboveAverage.isNotEmpty()) {
-                            Text(
-                                text = "Above Average Courses",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            result.coursesAboveAverage.forEach { course ->
-                                Text(
-                                    text = "• $course",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = Spacing.medium)
-                                )
+                        // Performance metrics with staggered reveal
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(Spacing.medium)
+                        ) {
+                            // Best performing course with pulse animation
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 0,
+                                staggerDelayMs = 100
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.small),
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium)
+                                    ) {
+                                        Text(
+                                            text = "Best Performing Course",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(Spacing.small))
+                                        
+                                        Text(
+                                            text = "${result.bestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.bestGrade)}",
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                             
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        // Below average courses
-                        if (result.coursesBelowAverage.isNotEmpty()) {
-                            Text(
-                                text = "Below Average Courses",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            
-                            Spacer(modifier = Modifier.height(Spacing.small))
-                            
-                            result.coursesBelowAverage.forEach { course ->
-                                Text(
-                                    text = "• $course",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.padding(start = Spacing.medium)
-                                )
+                            // Improvement area with attention-grabbing animation
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 1,
+                                staggerDelayMs = 150
+                            ) {
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(CornerRadius.small),
+                                    color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(Spacing.medium)
+                                    ) {
+                                        Text(
+                                            text = "Needs Improvement",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(Spacing.small))
+                                        
+                                        Text(
+                                            text = "${result.weakestCourse}: ${String.format(Locale.getDefault(), "%.2f", result.weakestGrade)}",
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
                             }
                             
-                            Spacer(modifier = Modifier.height(Spacing.medium))
-                        }
-                        
-                        // Recommendations
-                        if (result.recommendations.isNotEmpty()) {
-                            Text(
-                                text = "Recommendations",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            // Overall metrics with sequential reveal
+                            StaggeredListAnimation(
+                                visible = true,
+                                itemIndex = 2,
+                                staggerDelayMs = 200
+                            ) {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(Spacing.small)
+                                ) {
+                                    MetricRow(
+                                        label = "Overall TWA",
+                                        value = String.format(Locale.getDefault(), "%.2f", result.overallTwa),
+                                        icon = Icons.Default.Grade,
+                                        valueColor = MaterialTheme.colorScheme.primary
+                                    )
+                                    
+                                    MetricRow(
+                                        label = "Performance Variance",
+                                        value = String.format(Locale.getDefault(), "%.2f", result.performanceVariance),
+                                        icon = Icons.Default.Analytics,
+                                        valueColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
                             
-                            Spacer(modifier = Modifier.height(Spacing.small))
+                            // Course performance lists with cascading animation
+                            if (result.coursesAboveAverage.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 3,
+                                    staggerDelayMs = 250
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Above Average Courses",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(Spacing.small))
+                                        
+                                        result.coursesAboveAverage.forEach { course ->
+                                            Text(
+                                                text = "• $course",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.padding(start = Spacing.medium)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                             
-                            Text(
-                                text = result.recommendations,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            if (result.coursesBelowAverage.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 4,
+                                    staggerDelayMs = 300
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Below Average Courses",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(Spacing.small))
+                                        
+                                        result.coursesBelowAverage.forEach { course ->
+                                            Text(
+                                                text = "• $course",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.padding(start = Spacing.medium)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Recommendations with emphasis animation
+                            if (result.recommendations.isNotEmpty()) {
+                                StaggeredListAnimation(
+                                    visible = true,
+                                    itemIndex = 5,
+                                    staggerDelayMs = 350
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(CornerRadius.small),
+                                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.padding(Spacing.medium)
+                                        ) {
+                                            Text(
+                                                text = "Recommendations",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.secondary
+                                            )
+                                            
+                                            Spacer(modifier = Modifier.height(Spacing.small))
+                                            
+                                            Text(
+                                                text = result.recommendations,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
