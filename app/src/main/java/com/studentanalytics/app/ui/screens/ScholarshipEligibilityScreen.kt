@@ -143,7 +143,7 @@ fun ScholarshipEligibilityScreen(
                         Spacer(modifier = Modifier.height(Spacing.small))
                         
                         var yearLevelExpanded by remember { mutableStateOf(false) }
-                        val yearLevelOptions = listOf("1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year")
+                        val yearLevelOptions = listOf("1", "2", "3", "4", "5")
                         
                         ExposedDropdownMenuBox(
                             expanded = yearLevelExpanded,
@@ -197,7 +197,7 @@ fun ScholarshipEligibilityScreen(
                         Spacer(modifier = Modifier.height(Spacing.small))
                         
                         var deansListExpanded by remember { mutableStateOf(false) }
-                        val deansListOptions = listOf("Yes", "No")
+                        val deansListOptions = listOf("top_spot", "regular", "none")
                         
                         ExposedDropdownMenuBox(
                             expanded = deansListExpanded,
