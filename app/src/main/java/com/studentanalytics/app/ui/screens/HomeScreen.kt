@@ -16,12 +16,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
+import com.studentanalytics.app.R
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -188,14 +191,14 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(Spacing.medium)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.School,
+                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                            tint = Color.Unspecified
                         )
                         
                         Text(
-                            text = "Mapua Malayan Colleges Laguna",
+                            text = "Team StudentAnalytics©",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontWeight = FontWeight.SemiBold,
@@ -203,7 +206,7 @@ fun HomeScreen(
                         )
                         
                         Text(
-                            text = "Empowering students through data-driven insights",
+                            text = "Empowering students through data-driven insights\nStudentAnalytics | Mapúa MCL CCIS | IT140P-CIS342 \nヾ(≧ ▽ ≦)ゝ",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
