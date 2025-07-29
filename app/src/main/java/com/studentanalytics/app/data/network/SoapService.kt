@@ -8,103 +8,50 @@ import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
+// SOAP service for connecting to the backend
 class SoapService {
     private val baseUrl = "https://studentanalytics.azurewebsites.net/soap_server.php"
     
-    /**
-     * Validates and corrects chart dimensions to ensure they fall within backend constraints
-     * Backend requires: Width 400-1200, Height 300-800
-     */
+    // Make sure chart sizes are reasonable
     private fun validateChartDimensions(width: Int, height: Int): Pair<Int, Int> {
-        // Ensure input values are positive and reasonable
-        val safeWidth = maxOf(width, 1)
-        val safeHeight = maxOf(height, 1)
-        
-        // Apply backend constraints strictly
-        val validatedWidth = safeWidth.coerceIn(400, 1200)
-        val validatedHeight = safeHeight.coerceIn(300, 800)
-        
-        return Pair(validatedWidth, validatedHeight)
+        val w = maxOf(width, 400).coerceAtMost(1200)
+        val h = maxOf(height, 300).coerceAtMost(800)
+        return Pair(w, h)
     }
 
-    /**
-     * Validates GradeAnalysisRequest parameters
-     */
+    // Quick validation for grade analysis
     private fun validateGradeAnalysisRequest(request: GradeAnalysisRequest) {
-        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
-        require(request.currentGrades.isNotEmpty()) { "Current grades cannot be empty" }
-        require(request.courseUnits.isNotEmpty()) { "Course units cannot be empty" }
+        require(request.studentId.isNotBlank()) { "Student ID required" }
+        require(request.currentGrades.isNotEmpty()) { "Need some grades" }
+        require(request.courseUnits.isNotEmpty()) { "Need course units" }
         require(request.currentGrades.size == request.courseUnits.size) { 
-            "Current grades and course units must have the same size" 
+            "Grades and units must match" 
         }
-        require(request.currentGrades.all { it >= 0.0 }) { "Grades cannot be negative" }
         require(request.courseUnits.all { it > 0 }) { "Course units must be positive" }
         require(request.gradeFormat in listOf("raw", "transmuted")) { 
             "Grade format must be 'raw' or 'transmuted'" 
         }
     }
 
-    /**
-     * Validates CourseComparisonRequest parameters
-     */
+    // Basic validation - don't need to check everything
     private fun validateCourseComparisonRequest(request: CourseComparisonRequest) {
-        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
-        require(request.courseNames.isNotEmpty()) { "Course names cannot be empty" }
-        require(request.studentGrades.isNotEmpty()) { "Student grades cannot be empty" }
-        require(request.classAverages.isNotEmpty()) { "Class averages cannot be empty" }
-        require(request.creditHours.isNotEmpty()) { "Credit hours cannot be empty" }
-        require(request.courseNames.size == request.studentGrades.size) { 
-            "Course names and student grades must have the same size" 
-        }
-        require(request.courseNames.size == request.classAverages.size) { 
-            "Course names and class averages must have the same size" 
-        }
-        require(request.courseNames.size == request.creditHours.size) { 
-            "Course names and credit hours must have the same size" 
-        }
-        require(request.studentGrades.all { it >= 0.0 }) { "Student grades cannot be negative" }
-        require(request.classAverages.all { it >= 0.0 }) { "Class averages cannot be negative" }
-        require(request.creditHours.all { it > 0 }) { "Credit hours must be positive" }
-        require(request.gradeFormat in listOf("raw", "transmuted")) { 
-            "Grade format must be 'raw' or 'transmuted'" 
-        }
+        require(request.studentId.isNotBlank()) { "Need student ID" }
+        require(request.courseNames.isNotEmpty()) { "Need course names" }
+        require(request.studentGrades.isNotEmpty()) { "Need grades" }
     }
 
-    /**
-     * Validates PredictiveModelingRequest parameters
-     */
+    // Simple check for predictive modeling
     private fun validatePredictiveModelingRequest(request: PredictiveModelingRequest) {
-        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
-        require(request.historicalGrades.isNotEmpty()) { "Historical grades cannot be empty" }
-        require(request.attendanceRate in 0.0..100.0) { "Attendance rate must be between 0 and 100" }
-        require(request.courseHours > 0.0) { "Course hours must be positive" }
-        require(request.creditUnits > 0) { "Credit units must be positive" }
-        require(request.historicalGrades.all { it >= 0.0 }) { "Historical grades cannot be negative" }
-        require(request.gradeFormat in listOf("raw", "transmuted")) { 
-            "Grade format must be 'raw' or 'transmuted'" 
-        }
+        require(request.studentId.isNotBlank()) { "Student ID required" }
+        require(request.historicalGrades.isNotEmpty()) { "Need historical grades" }
+        require(request.attendanceRate >= 0.0) { "Attendance can't be negative" }
     }
 
-    /**
-     * Validates ScholarshipEligibilityRequest parameters
-     */
+    // Basic scholarship validation
     private fun validateScholarshipEligibilityRequest(request: ScholarshipEligibilityRequest) {
-        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
-        require(request.twa >= 1.0 && request.twa <= 5.0) { "TWA must be between 1.0 and 5.0" }
+        require(request.studentId.isNotBlank()) { "Student ID required" }
+        require(request.twa >= 1.0 && request.twa <= 5.0) { "TWA must be 1.0-5.0" }
         require(request.creditUnits > 0) { "Credit units must be positive" }
-        require(request.completedUnits >= 0) { "Completed units cannot be negative" }
-        // Remove the constraint that completed units can't exceed credit units since they represent different things
-        // creditUnits = current enrolled units, completedUnits = total completed towards degree
-        if (!request.yearLevel.isNullOrBlank()) {
-            require(request.yearLevel in listOf("1", "2", "3", "4", "5")) { 
-                "Year level must be between 1 and 5" 
-            }
-        }
-        if (!request.deansListStatus.isNullOrBlank()) {
-            require(request.deansListStatus in listOf("top_spot", "regular", "none")) { 
-                "Dean's List status must be 'top_spot', 'regular', or 'none'" 
-            }
-        }
     }
 
     /**

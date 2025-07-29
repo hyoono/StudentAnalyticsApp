@@ -146,16 +146,26 @@ class PredictiveModelingViewModel : ViewModel() {
 
     fun generatePrediction(request: PredictiveModelingRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true, 
+                error = null, 
+                result = null, 
+                chartError = null, 
+                chartResponse = null
+            )
+            
             try {
-                // Perform predictive modeling analysis
                 val result = soapService.generatePrediction(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Automatically generate TWA progress chart using the same user input data
+                // Also try to get the chart automatically
                 generateTWAProgressChart(request)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
+                // Basic error handling
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, 
+                    error = e.message ?: "Failed to generate prediction"
+                )
             }
         }
     }

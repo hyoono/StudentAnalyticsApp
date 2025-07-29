@@ -27,6 +27,8 @@ import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
 import kotlinx.coroutines.delay
 
+// Course comparison screen - compare different subjects
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CourseComparisonScreen(
