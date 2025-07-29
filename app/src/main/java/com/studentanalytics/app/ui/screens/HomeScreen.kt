@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.CompareArrows
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -75,7 +76,7 @@ fun HomeScreen(
                     2 -> Triple(
                         "Predictive Performance Modeling",
                         "Get predictions for future academic performance based on current trends and historical data",
-                        Icons.Default.TrendingUp
+                        Icons.AutoMirrored.Filled.TrendingUp // Fixed deprecated icon
                     ) to onNavigateToPredictiveModeling
                     else -> Triple(
                         "Academic Scholarship Eligibility",

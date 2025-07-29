@@ -45,6 +45,7 @@ class GradeAnalysisViewModel : ViewModel() {
                     _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
                 } catch (e: Exception) {
                     // Chart failed but keep the analysis result
+                    // println("Chart error: ${e.message}") // Debug line I used while testing
                     _uiState.value = _uiState.value.copy(
                         isLoadingChart = false,
                         chartError = "Chart generation failed: ${e.message}"
