@@ -53,14 +53,12 @@ fun StudentAnalyticsApp() {
                         Icon(
                             imageVector = Icons.Default.Analytics,
                             contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            modifier = Modifier.size(24.dp)
                         )
                         Text(
                             text = "Student Analytics",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 },
@@ -78,72 +76,13 @@ fun StudentAnalyticsApp() {
     }
 }
 
-// Material 3 motion system transition specifications
+// TODO: Maybe add more animation types later?
 object NavigationAnimations {
-    private val motionDuration = 400
-    private val motionEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
-    
-    val enterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
-        slideInHorizontally(
-            initialOffsetX = { fullWidth -> fullWidth },
-            animationSpec = tween(
-                durationMillis = motionDuration,
-                easing = motionEasing
-            )
-        ) + fadeIn(
-            animationSpec = tween(
-                durationMillis = motionDuration / 2,
-                delayMillis = motionDuration / 4,
-                easing = LinearEasing
-            )
-        )
-    }
-    
-    val exitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
-        slideOutHorizontally(
-            targetOffsetX = { fullWidth -> -fullWidth / 3 },
-            animationSpec = tween(
-                durationMillis = motionDuration,
-                easing = motionEasing
-            )
-        ) + fadeOut(
-            animationSpec = tween(
-                durationMillis = motionDuration / 2,
-                easing = LinearEasing
-            )
-        )
-    }
-    
-    val popEnterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
-        slideInHorizontally(
-            initialOffsetX = { fullWidth -> -fullWidth / 3 },
-            animationSpec = tween(
-                durationMillis = motionDuration,
-                easing = motionEasing
-            )
-        ) + fadeIn(
-            animationSpec = tween(
-                durationMillis = motionDuration / 2,
-                delayMillis = motionDuration / 4,
-                easing = LinearEasing
-            )
-        )
-    }
-    
-    val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
-        slideOutHorizontally(
-            targetOffsetX = { fullWidth -> fullWidth },
-            animationSpec = tween(
-                durationMillis = motionDuration,
-                easing = motionEasing
-            )
-        ) + fadeOut(
-            animationSpec = tween(
-                durationMillis = motionDuration / 2,
-                easing = LinearEasing
-            )
-        )
-    }
+    // Simple slide animations - keeping it basic for now
+    val slideInRight = slideInHorizontally { it }
+    val slideOutLeft = slideOutHorizontally { -it }
+    val slideInLeft = slideInHorizontally { -it }
+    val slideOutRight = slideOutHorizontally { it }
 }
 
 @Composable
@@ -155,10 +94,10 @@ fun NavigationGraph(
         navController = navController,
         startDestination = "home",
         modifier = modifier,
-        enterTransition = NavigationAnimations.enterTransition,
-        exitTransition = NavigationAnimations.exitTransition,
-        popEnterTransition = NavigationAnimations.popEnterTransition,
-        popExitTransition = NavigationAnimations.popExitTransition
+        enterTransition = { NavigationAnimations.slideInRight },
+        exitTransition = { NavigationAnimations.slideOutLeft },
+        popEnterTransition = { NavigationAnimations.slideInLeft },
+        popExitTransition = { NavigationAnimations.slideOutRight }
     ) {
         composable("home") {
             HomeScreen(

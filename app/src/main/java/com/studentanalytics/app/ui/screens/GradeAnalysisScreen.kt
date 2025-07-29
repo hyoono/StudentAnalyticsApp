@@ -29,26 +29,29 @@ import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
 import kotlinx.coroutines.delay
 
+// TODO: Add grade prediction feature later
+// TODO: Maybe add more visualization types
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GradeAnalysisScreen(
     onBack: () -> Unit,
     viewModel: GradeAnalysisViewModel = viewModel()
 ) {
-    var studentId by remember { mutableStateOf("") }
-    var currentGrades by remember { mutableStateOf("") }
-    var courseUnits by remember { mutableStateOf("") }
-    var historicalGrades by remember { mutableStateOf("") }
+    var studentID by remember { mutableStateOf("") } // Using ID instead of Id for variety
+    var grades by remember { mutableStateOf("") }
+    var units by remember { mutableStateOf("") }
+    var pastGrades by remember { mutableStateOf("") }
     var gradeFormat by remember { mutableStateOf("raw") }
-    var contentVisible by remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberLazyListState()
     
-    // Standardized animation timing
+    // Simple animation
+    var isVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        delay(MotionTokens.ScreenEntranceDelay.toLong())
-        contentVisible = true
+        delay(200) // Just a quick delay
+        isVisible = true
     }
 
     OneUILayout(
@@ -68,7 +71,7 @@ fun GradeAnalysisScreen(
         // Input form with advanced choreographed animations
         item {
             StaggeredListAnimation(
-                visible = contentVisible,
+                visible = isVisible,
                 itemIndex = 0,
                 staggerDelayMs = 100
             ) {
@@ -87,8 +90,8 @@ fun GradeAnalysisScreen(
                     )
 
                     EnhancedTextField(
-                        value = studentId,
-                        onValueChange = { studentId = it },
+                        value = studentID,
+                        onValueChange = { studentID = it },
                         label = "Student ID",
                         placeholder = "Enter student ID",
                         leadingIcon = Icons.Default.Person,
@@ -96,8 +99,8 @@ fun GradeAnalysisScreen(
                     )
 
                     EnhancedTextField(
-                        value = currentGrades,
-                        onValueChange = { currentGrades = it },
+                        value = grades,
+                        onValueChange = { grades = it },
                         label = "Current Grades",
                         placeholder = if (gradeFormat == "raw") "85,92,78,88" else "1.25,1.00,1.75,1.50",
                         leadingIcon = Icons.Default.Grade,
@@ -126,8 +129,8 @@ fun GradeAnalysisScreen(
                     )
 
                     EnhancedTextField(
-                        value = courseUnits,
-                        onValueChange = { courseUnits = it },
+                        value = units,
+                        onValueChange = { units = it },
                         label = "Course Units",
                         placeholder = "3,4,3,3",
                         leadingIcon = Icons.Default.School,
@@ -138,8 +141,8 @@ fun GradeAnalysisScreen(
                     )
 
                     EnhancedTextField(
-                        value = historicalGrades,
-                        onValueChange = { historicalGrades = it },
+                        value = pastGrades,
+                        onValueChange = { pastGrades = it },
                         label = "Historical Grades",
                         placeholder = "80,85,75,82;83,88,77,85",
                         leadingIcon = Icons.Default.History,
@@ -158,7 +161,7 @@ fun GradeAnalysisScreen(
         // Action button with enhanced spring animation
         item {
             StaggeredListAnimation(
-                visible = contentVisible,
+                visible = isVisible,
                 itemIndex = 1,
                 staggerDelayMs = 150
             ) {
@@ -166,10 +169,10 @@ fun GradeAnalysisScreen(
                     text = "Analyze Grades",
                     onClick = {
                         val request = GradeAnalysisRequest(
-                            studentId = studentId,
-                            currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                            courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                            historicalGrades = historicalGrades.split(";").map { term ->
+                            studentId = studentID,
+                            currentGrades = grades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            courseUnits = units.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                            historicalGrades = pastGrades.split(";").map { term ->
                                 term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
                             },
                             gradeFormat = gradeFormat
@@ -546,12 +549,12 @@ fun GradeAnalysisScreen(
                         ErrorCard(
                             message = uiState.chartError!!,
                             onRetry = {
-                                if (studentId.isNotBlank()) {
+                                if (studentID.isNotBlank()) {
                                     val request = GradeAnalysisRequest(
-                                        studentId = studentId,
-                                        currentGrades = currentGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                        courseUnits = courseUnits.split(",").mapNotNull { it.trim().toDoubleOrNull() },
-                                        historicalGrades = historicalGrades.split(";").map { term ->
+                                        studentId = studentID,
+                                        currentGrades = grades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                        courseUnits = units.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                        historicalGrades = pastGrades.split(";").map { term ->
                                             term.split(",").mapNotNull { it.trim().toDoubleOrNull() }
                                         },
                                         gradeFormat = gradeFormat

@@ -25,23 +25,36 @@ class GradeAnalysisViewModel : ViewModel() {
 
     fun analyzeGrades(request: GradeAnalysisRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null, isLoadingChart = true)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true, 
+                error = null, 
+                result = null, 
+                chartError = null, 
+                chartResponse = null, 
+                isLoadingChart = true
+            )
+            
             try {
-                // Perform grade analysis
+                // Get the analysis first
                 val result = soapService.analyzeGrades(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Generate integrated analysis with chart
-                val chartResult = soapService.analyzeGradesWithChart(request)
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
+                // Then try to get the chart
+                try {
+                    val chartResult = soapService.analyzeGradesWithChart(request)
+                    _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
+                } catch (e: Exception) {
+                    // Chart failed but keep the analysis result
+                    _uiState.value = _uiState.value.copy(
+                        isLoadingChart = false,
+                        chartError = "Chart generation failed: ${e.message}"
+                    )
+                }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false, 
                     isLoadingChart = false,
-                    result = null,
-                    chartResponse = null,
-                    error = e.message,
-                    chartError = e.message
+                    error = e.message ?: "Something went wrong"
                 )
             }
         }
@@ -64,16 +77,26 @@ class CourseComparisonViewModel : ViewModel() {
 
     fun compareCourses(request: CourseComparisonRequest) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null, result = null, chartError = null, chartResponse = null)
+            _uiState.value = _uiState.value.copy(
+                isLoading = true, 
+                error = null, 
+                result = null, 
+                chartError = null, 
+                chartResponse = null
+            )
+            
             try {
-                // Perform course comparison analysis
                 val result = soapService.compareCourses(request)
                 _uiState.value = _uiState.value.copy(isLoading = false, result = result)
                 
-                // Automatically generate course comparison chart with the same data used for analysis
+                // Generate chart automatically 
                 generateCourseComparisonChart(request)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, result = null, error = e.message)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false, 
+                    result = null, 
+                    error = e.message
+                )
             }
         }
     }
@@ -81,6 +104,7 @@ class CourseComparisonViewModel : ViewModel() {
     private fun generateCourseComparisonChart(comparisonRequest: CourseComparisonRequest) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingChart = true, chartError = null)
+            
             try {
                 val chartRequest = ChartRequest(
                     studentId = comparisonRequest.studentId,
@@ -89,14 +113,18 @@ class CourseComparisonViewModel : ViewModel() {
                     classAverages = comparisonRequest.classAverages,
                     creditHours = comparisonRequest.creditHours,
                     gradeFormat = comparisonRequest.gradeFormat,
-                    // Ensure dimensions are within valid range (400-1200 width, 300-800 height)
-                    width = 800.coerceIn(400, 1200),
-                    height = 400.coerceIn(300, 800)
+                    width = 800, // Standard size
+                    height = 400
                 )
+                
                 val chartResult = soapService.generateCourseComparisonChart(chartRequest)
                 _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = chartResult)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoadingChart = false, chartResponse = null, chartError = e.message)
+                // Don't worry about chart errors too much
+                _uiState.value = _uiState.value.copy(
+                    isLoadingChart = false, 
+                    chartError = "Chart failed"
+                )
             }
         }
     }

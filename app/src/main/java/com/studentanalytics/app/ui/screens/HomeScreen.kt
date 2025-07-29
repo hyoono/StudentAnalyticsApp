@@ -36,25 +36,20 @@ fun HomeScreen(
     onNavigateToScholarshipEligibility: () -> Unit
 ) {
     val scrollState = rememberLazyListState()
-    var contentVisible by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(Unit) {
-        delay(100)
-        contentVisible = true
-    }
+    // Removed the animation stuff - keeping it simple
+    var contentVisible by remember { mutableStateOf(true) } // Just show everything immediately
     
     OneUILayout(
-        title = "Student Performance Analytics",
-        subtitle = "Comprehensive academic analysis platform",
+        title = "Student Analytics",
+        subtitle = "Track your academic performance",
         icon = Icons.Default.Analytics,
         scrollState = scrollState,
         headerContent = {
             Spacer(modifier = Modifier.height(Spacing.medium))
             Text(
-                text = "Analyze grades, compare courses, predict performance, and check scholarship eligibility",
+                text = "Analyze your grades and academic progress",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth()
             )
         }
