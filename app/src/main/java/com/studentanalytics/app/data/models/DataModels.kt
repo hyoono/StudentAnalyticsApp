@@ -1,30 +1,32 @@
 package com.studentanalytics.app.data.models
 
-// Request Models
+// Data models for the student analytics app
+// TODO: Maybe add validation later?
+
 data class GradeAnalysisRequest(
     val studentId: String,
     val currentGrades: List<Double>,
     val courseUnits: List<Double>,
-    val historicalGrades: List<List<Double>>,
-    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
+    val historicalGrades: List<List<Double>>, // Past semester grades
+    val gradeFormat: String = "raw" // raw (0-100) or transmuted (1.00-5.00)
 )
 
 data class CourseComparisonRequest(
     val studentId: String,
     val courseNames: List<String>,
     val studentGrades: List<Double>,
-    val classAverages: List<Double>,
+    val classAverages: List<Double>, // Class averages for comparison
     val creditHours: List<Int>,
-    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
+    val gradeFormat: String = "raw"
 )
 
 data class PredictiveModelingRequest(
     val studentId: String,
     val historicalGrades: List<Double>,
-    val attendanceRate: Double,
-    val courseHours: Double, // lecture + laboratory hours
+    val attendanceRate: Double, // attendance percentage
+    val courseHours: Double, // lecture + lab hours combined
     val creditUnits: Int,
-    val gradeFormat: String = "raw" // "raw" (0-100) or "transmuted" (1.00-5.00)
+    val gradeFormat: String = "raw"
 )
 
 data class ScholarshipEligibilityRequest(

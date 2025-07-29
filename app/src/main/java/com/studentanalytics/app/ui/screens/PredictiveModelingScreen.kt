@@ -25,6 +25,8 @@ import com.studentanalytics.app.ui.components.*
 import com.studentanalytics.app.ui.theme.*
 import kotlinx.coroutines.delay
 
+// Predictive modeling screen for future performance prediction
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PredictiveModelingScreen(
