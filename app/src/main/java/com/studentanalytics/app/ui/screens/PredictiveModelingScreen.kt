@@ -373,6 +373,40 @@ fun PredictiveModelingScreen(
                 }
             }
         }
+
+        // Chart display with morphing reveal animation
+        if (uiState.chartResponse != null || uiState.isLoadingChart || uiState.chartError != null) {
+            item {
+                StaggeredListAnimation(
+                    visible = true,
+                    itemIndex = 5,
+                    staggerDelayMs = 400
+                ) {
+                    ChartDisplay(
+                        chartResponse = uiState.chartResponse,
+                        isLoading = uiState.isLoadingChart,
+                        error = uiState.chartError,
+                        onRetry = {
+                            // Retry chart generation with the last used request
+                            uiState.result?.let {
+                                val request = PredictiveModelingRequest(
+                                    studentId = studentId,
+                                    historicalGrades = historicalGrades.split(",").mapNotNull { it.trim().toDoubleOrNull() },
+                                    attendanceRate = attendanceRate.toDoubleOrNull() ?: 0.0,
+                                    courseHours = courseHours.toDoubleOrNull() ?: 0.0,
+                                    creditUnits = creditUnits.toIntOrNull() ?: 0,
+                                    gradeFormat = gradeFormat
+                                )
+                                viewModel.generatePrediction(request)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Spacing.medium)
+                    )
+                }
+            }
+        }
         
         item {
             Spacer(modifier = Modifier.height(Spacing.extraLarge))
