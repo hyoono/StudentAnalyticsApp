@@ -33,11 +33,28 @@ class SoapService {
         }
     }
 
-    // Basic validation - don't need to check everything
+    // Course comparison needs thorough validation for SOAP backend
     private fun validateCourseComparisonRequest(request: CourseComparisonRequest) {
-        require(request.studentId.isNotBlank()) { "Need student ID" }
-        require(request.courseNames.isNotEmpty()) { "Need course names" }
-        require(request.studentGrades.isNotEmpty()) { "Need grades" }
+        require(request.studentId.isNotBlank()) { "Student ID cannot be blank" }
+        require(request.courseNames.isNotEmpty()) { "Course names cannot be empty" }
+        require(request.studentGrades.isNotEmpty()) { "Student grades cannot be empty" }
+        require(request.classAverages.isNotEmpty()) { "Class averages cannot be empty" }
+        require(request.creditHours.isNotEmpty()) { "Credit hours cannot be empty" }
+        require(request.courseNames.size == request.studentGrades.size) { 
+            "Course names and student grades must have the same size" 
+        }
+        require(request.courseNames.size == request.classAverages.size) { 
+            "Course names and class averages must have the same size" 
+        }
+        require(request.courseNames.size == request.creditHours.size) { 
+            "Course names and credit hours must have the same size" 
+        }
+        require(request.studentGrades.all { it >= 0.0 }) { "Student grades cannot be negative" }
+        require(request.classAverages.all { it >= 0.0 }) { "Class averages cannot be negative" }
+        require(request.creditHours.all { it > 0 }) { "Credit hours must be positive" }
+        require(request.gradeFormat in listOf("raw", "transmuted")) { 
+            "Grade format must be 'raw' or 'transmuted'" 
+        }
     }
 
     // Simple check for predictive modeling
